@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-83QR773B3W"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-83QR773B3W');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta property="og:description" content="Explore paragliding sites in immersive 3D with XcThermal.">
+    <meta property="og:image" content="{{ url_for('static', filename='social_card.png') }}?v=1">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="XcThermal 3D Map">
+    <meta name="twitter:description" content="Interactive 3D paragliding map with thermal analysis.">
+    <meta name="twitter:image" content="{{ url_for('static', filename='social_card.png') }}?v=1">
+    <title>XcThermal 3D</title>
+
+    <!-- Favicon Integration -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}?v=6" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}?v=6">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}?v=6">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}?v=6">
+    <!-- Use same CSS as main app -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='antigravity.css') }}">
+
+    <!-- ArcGIS CSS -->
+    <link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/light/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        #viewDiv {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+        }
+
+        /* Overrides for ArcGIS UI to match XcThermal style */
+        .esri-view .esri-view-surface--inset-outline:focus::after {
+            outline: auto 2px Highlight;
+            outline: auto 5px -webkit-focus-ring-color;
+        }
+
+        /* Position return button */
+        #returnBtn {
+            /* Position handled by Esri UI stack now */
+            /* position: absolute; top/left removed */
+            pointer-events: auto;
+            /* Ensure clickable in Esri UI */
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s;
+        }
+
+        #returnBtn:hover {
+            background: white;
+            transform: scale(1.05);
+            color: #333;
+        }
+
+        #returnBtn {
+            display: block !important;
+            color: #333;
+            /* Position handled by Esri UI stack now */
+
+            /* Reuse styling for panels */
+            .settings-panel {
+                z-index: 55;
+            }
+
+            .thermal-box {
+                z-index: 50;
+            }
+
+            .ai-panel {
+                z-index: 60;
+            }
+
+            /* Disable Esri feature content as requested */
+            .esri-features__content-feature {
+                display: none !important;
+            }
+    </style>
+</head>
+
+<body>
+
+    <!-- ANTIGRAVITY PRELOADER -->
+    <div id="antigravity-preloader">
+        <div class="stars"></div>
+        <div class="hamster-scene">
+            <div class="wheel"></div>
+            <div class="hamster">
+                <div class="hamster-body"></div>
+                <div class="hamster-head">
+                    <div class="hamster-ear"></div>
+                    <div class="hamster-ear right"></div>
+                    <div class="hamster-eye"></div>
+                    <div class="hamster-eye left"></div>
+                </div>
+                <!-- Limbs -->
+                <div class="hamster-limb fl"></div>
+                <div class="hamster-limb fr"></div>
+                <div class="hamster-limb bl"></div>
+                <div class="hamster-limb br"></div>
+                <!-- Helmet -->
+                <div class="space-helmet"></div>
+            </div>
+        </div>
+        <div class="text">XCTHERMAL</div>
+        <div class="subtext">FORCING HAMSTERS TO RUN ...</div>
+    </div>
+
+    <!-- 3D Map Container -->
+    <div id="viewDiv"></div>
+
+    <div id="mapLogoContainer">
+        <a href="/" id="mapLogoLink">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="XC Thermal Logo" id="mapLogo" />
+        </a>
+    </div>
+
+    <!-- Nav Bar / Overlays (Simplified for 3D view) -->
+    <header>
+        <nav class="main-nav">
+            <a href="/">Home</a>
+            {% if current_user.is_authenticated %}
+            <span class="user-info" onclick="document.getElementById('addCreditsModalOverlay').classList.add('active')">
+                <img src="{{ url_for('static', filename='hamster_coin.png') }}" class="hamster-icon" alt="Credits">
+                <span id="userCreditsSpan" class="credits">{{ current_user.credits }}</span>
+            </span>
+            <a href="#" id="navProfileBtn">Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+            <a href="#" id="navLoginBtn">Login</a>
+            <a href="#" id="navRegisterBtn">Register</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <!-- Flash Messages (Reused) -->
+    <div id="flash-messages-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="flash-message {{ category }}">
+            {{ message }}
+            <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Search Toggle -->
+    <button id="searchToggleBtn" title="Search">
+        <img src="{{ url_for('static', filename='search.png') }}" alt="Search" />
+    </button>
+    <div id="searchWrapper" style="display: none;">
+        <div id="searchPanel">
+            <div id="geocoder-container"></div> <!-- ArcGIS Search Widget -->
+            <button id="historyToggle">History</button>
+            <ul id="historyList" class="hidden"></ul>
+            <!-- Weather removed from 3D for simplicity or added later -->
+        </div>
+    </div>
+
+    <button id="settingsBtn" class="settings-icon" title="Settings">
+        <img src="{{ url_for('static', filename='settings.png') }}" alt="Settings" />
+    </button>
+
+    <div id="settingsPanel" class="settings-panel">
+        <button id="closeSettingsBtn" class="close-btn" title="Close Settings">×</button>
+        <h2 id="settingsTitle">Settings</h2>
+        <div class="setting-group">
+            <label for="languageSelect" id="labelLanguage">Language:</label>
+            <select id="languageSelect">
+                <option value="en">English</option>
+                <option value="tr">Türkçe</option>
+                <option value="es">Español</option>
+            </select>
+        </div>
+        <div class="setting-group">
+            <label for="unitSelect" id="labelUnits">Units:</label>
+            <select id="unitSelect">
+                <option value="metric">Metric (m/km/°C)</option>
+                <option value="imperial">Imperial (ft/mi/°F)</option>
+            </select>
+        </div>
+        <div class="setting-group">
+            <label for="aiPromptStyle" id="labelStyle">AI Prompt Style:</label>
+            <select id="aiPromptStyle">
+                <option value="basic">Basic</option>
+                <option value="pilot">Pilot</option>
+                <option value="xc">XC</option>
+                <option value="tandem">Tandem Pilot</option>
+                <option value="expert">Expert Level</option>
+                <option value="speed">Speed Flight</option>
+                <option value="acro">Acro Flight</option>
+            </select>
+        </div>
+        <div class="setting-group">
+            <label for="mapStyleSelect" id="labelMapStyle">Map Style:</label>
+            <select id="mapStyleSelect">
+                <option value="mapbox://styles/mapbox/satellite-streets-v12">Satellite</option>
+                <option value="mapbox://styles/mapbox/outdoors-v12">Outdoors</option>
+                <option value="mapbox://styles/mapbox/streets-v12">Streets</option>
+                <option value="mapbox://styles/mapbox/light-v11">Light</option>
+                <option value="mapbox://styles/mapbox/dark-v11">Dark</option>
+                <option value="mapbox://styles/mapbox/navigation-day-v1">Navigation Day</option>
+                <option value="mapbox://styles/mapbox/navigation-night-v1">Navigation Night</option>
+            </select>
+        </div>
+        <div class="setting-group">
+            <label id="labelHotspots"
+                style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                Hotspots
+                <input type="checkbox" id="hotspotCheckbox" style="width: auto; margin-left: 10px;">
+            </label>
+        </div>
+
+        <!-- Skyways Toggle moved here -->
+        <div class="setting-group">
+            <label id="labelSkyways"
+                style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                Skyways 3D
+                <input type="checkbox" id="skywaysCheckbox" style="width: auto; margin-left: 10px;">
+            </label>
+        </div>
+
+        <div class="setting-group" style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 10px; margin-top: 10px;">
+            <label id="labelSpotAir"
+                style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <span style="font-weight: bold; color: #333;">SpotAiR <span
+                        style="color: #ef4444; font-size: 0.8em;">LIVE</span></span>
+                <input type="checkbox" id="spotairCheckbox" style="width: auto; margin-left: 10px;">
+            </label>
+        </div>
+    </div>
+
+    <!-- Stats / Meteogram Button -->
+    <button id="statsButton" class="statsIcon" title="Statistics">
+        <img src="{{ url_for('static', filename='stats.png') }}" alt="Stats" />
+    </button>
+    <button id="tutorialBtn" title="Restart Tutorial">?</button>
+    <button id="creditsBtn" title="Credits & Info"
+        onclick="document.getElementById('welcomeModalOverlay').classList.add('active')">i</button>
+
+    <button id="calculatorBtn" title="Distance & Triangle Calculator">
+        <img src="{{ url_for('static', filename='triangle1.png') }}" alt="Calculator" />
+    </button>
+
+    <div id="calculatorPanel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 style="margin:0; font-size:16px;">XC Calculator</h3>
+            <button id="closeCalculatorBtn"
+                style="background:none; border:none; font-size:18px; cursor:pointer;">&times;</button>
+        </div>
+        <div id="calculatorResult" style="font-size:14px; margin-bottom:15px; min-height:40px;">
+            Click on map to add points.
+        </div>
+        <button id="clearCalculatorBtn"
+            style="width:100%; padding:8px; background:#f44336; color:white; border:none; border-radius:6px; cursor:pointer;">Clear
+            Points</button>
+    </div>
+
+
+    <!-- Thermal Forecast Panel (Bottom) -->
+    <div id="thermalBox" class="thermal-box collapsed">
+        <div id="thermalHeader">Thermal Forecast ▲</div>
+        <div id="thermalContent">
+            <!-- Loader removed as requested -->
+            <div id="thermalImageScroll">
+                <img id="thermalImage" src="" alt="Thermal forecast will appear here." style="display: none;" />
+                <div id="thermalPlaceholder">Click map for forecast</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal for Forecasts (Positon Updated) -->
+    <div id="imageModal" class="image-modal hidden">
+        <span id="modalClose" class="close-btn" role="button" aria-label="Close modal">&times;</span>
+        <img id="modalImage" class="modal-content" alt="Enlarged thermal forecast" />
+    </div>
+
+    <!-- AI Panel -->
+    {% if current_user.is_authenticated %}
+    <button id="aiToggleBtn" class="ai-bounce" title="Interpret Weather" style="display: none;">Interpret</button>
+
+    <div id="aiPanel" class="ai-panel">
+        <button id="aiCloseBtn" class="ai-close-btn">×</button>
+        <h2 class="ai-panel-title">Weather Analysis</h2>
+        <div id="aiOutput" class="ai-output-text">
+            Loading interpretation. It May Take Up To 1-2 Minutes.
+        </div>
+
+        <!-- Email Report Container -->
+        <div class="email-report-container" style="display: none; margin-bottom: 15px;">
+            <p class="email-title">📩 Save / Send Report</p>
+
+            {% if current_user.is_authenticated and current_user.email %}
+            <div class="email-options">
+                <label class="email-option-label">
+                    <input type="radio" name="emailTargetTop" value="me" checked onchange="toggleEmailInput(this)">
+                    Send to Me
+                </label>
+                <label class="email-option-label">
+                    <input type="radio" name="emailTargetTop" value="other" onchange="toggleEmailInput(this)">
+                    Send to Other
+                </label>
+            </div>
+            {% endif %}
+
+            <div class="email-input-group">
+                <input type="email" class="recipient-email-input" placeholder="Enter email address"
+                    value="{{ current_user.email if current_user.is_authenticated else '' }}" {% if
+                    current_user.is_authenticated %}disabled{% endif %} />
+                <button class="btn-send-email">Send</button>
+            </div>
+            <p class="email-status-msg"></p>
+        </div>
+
+        <script>
+            function toggleEmailInput(radio) {
+                const container = radio.closest('.email-report-container');
+                const emailInput = container.querySelector('.recipient-email-input');
+                if (radio.value === 'me') {
+                    emailInput.value = "{{ current_user.email }}";
+                    emailInput.disabled = true;
+                } else {
+                    emailInput.value = "";
+                    emailInput.disabled = false;
+                    emailInput.focus();
+                }
+            }
+        </script>
+    </div>
+    {% endif %}
+
+    <!-- Return to 2D Button -->
+    <button id="returnBtn" class="esri-component">2D</button>
+
+    <!-- Auth Modals (Reused) -->
+    {% if not current_user.is_authenticated %}
+    <div id="authModalOverlay" class="auth-modal-overlay">
+        <div id="authModalContent" class="auth-modal-content">
+            <h2>Login Required</h2>
+            <form method="POST" action="{{ url_for('login') }}">
+                <!-- Add next param to stay on 3d map -->
+                <input type="hidden" name="next" value="/map3d">
+                <div class="form-group">
+                    <label for="modalUsername">Username</label>
+                    <input type="text" id="modalUsername" name="username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="modalPassword">Password</label>
+                    <input type="password" id="modalPassword" name="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="modal-login-btn">Log In</button>
+            </form>
+            <p class="modal-register-text" style="margin-top: 15px;"><a href="#"
+                    onclick="document.getElementById('authModalOverlay').classList.remove('active'); document.getElementById('resetPasswordModalOverlay').classList.add('active'); return false;">Forgot
+                    Password?</a></p>
+            <p class="modal-register-text">Don't have an account? <a href="#"
+                    onclick="document.getElementById('authModalOverlay').classList.remove('active'); document.getElementById('registerModalOverlay').classList.add('active'); return false;">Register
+                    here</a></p>
+        </div>
+    </div>
+    <!-- Register Modal Stub -->
+    <div id="registerModalOverlay" class="auth-modal-overlay">
+        <div id="authModalContent" class="auth-modal-content">
+            <h2>Register</h2>
+            <form method="POST" action="{{ url_for('register') }}">
+                <div class="form-group"><label>Username</label><input type="text" name="username" required></div>
+                <div class="form-group"><label>Email</label><input type="email" name="email" required></div>
+                <div class="form-group"><label>Password</label><input type="password" name="password" required></div>
+                <button type="submit" class="modal-login-btn">Sign Up</button>
+            </form>
+        </div>
+    </div>
+    <!-- Reset Stub -->
+    <div id="resetPasswordModalOverlay" class="auth-modal-overlay">
+        <!-- Stub content -->
+    </div>
+    {% endif %}
+
+
+    <!-- Tutorial Overlay -->
+    <div id="tutorialOverlay" class="tutorial-overlay" style="display: none;">
+        <div class="tutorial-modal">
+            <h2 id="tutorialTitle">Welcome to XcThermal!</h2>
+            <p id="tutorialText">Let's take a quick tour to show you around.</p>
+            <div class="tutorial-navigation">
+                <button id="tutorialSkipBtn" class="tutorial-btn secondary">Skip Tour</button>
+                <button id="tutorialPrevBtn" class="tutorial-btn" style="display: none;">Previous</button>
+                <button id="tutorialNextBtn" class="tutorial-btn">Next</button>
+                <button id="tutorialDoneBtn" class="tutorial-btn" style="display: none;">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome / Credits Modal -->
+    <div id="welcomeModalOverlay" class="auth-modal-overlay">
+        <div id="welcomeContent" class="auth-modal-content" style="text-align: center;">
+            <button class="close-btn"
+                onclick="document.getElementById('welcomeModalOverlay').classList.remove('active')"
+                style="float: right;">&times;</button>
+            <h2 style="margin-top: 0;">Welcome to XcThermal <span style="font-size: 0.6em; color: #aaa;">v1.1</span>
+            </h2>
+            <!-- How it works expandable tab -->
+            <div class="how-it-works-container" style="margin: 15px 0 25px 0;">
+                <button class="how-it-works-btn" onclick="toggleHowItWorks(this)">
+                    How it works <span class="arrow">▾</span>
+                </button>
+                <div id="howItWorksExpanded" class="how-it-works-content" style="display: none;">
+                    <div style="padding: 15px; text-align: left; font-size: 0.95em; line-height: 2;">
+                        <p style="margin-bottom: 15px;">
+                            XcThermal fetches data from
+                            <a href="https://open-meteo.com/" target="_blank" class="pill-link meteo">Open-Meteo</a>
+                            and
+                            <a href="https://www.meteoblue.com/" target="_blank" class="pill-link meteo">Meteoblue</a>.
+                        </p>
+                        <p style="margin-bottom: 0;">
+                            It is interpreted by
+                            <a href="https://deepmind.google/technologies/gemini/" target="_blank"
+                                class="pill-link gemini">✨ Gemini 3</a>,
+                            an AI agent that reads visual meteograms and raw data to give the weather forecast.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function toggleHowItWorks(btn) {
+                    const content = document.getElementById('howItWorksExpanded');
+                    const arrow = btn.querySelector('.arrow');
+                    if (content.style.display === 'none') {
+                        content.style.display = 'block';
+                        arrow.innerHTML = '▴';
+                        btn.style.background = 'rgba(255,255,255,0.2)';
+                    } else {
+                        content.style.display = 'none';
+                        arrow.innerHTML = '▾';
+                        btn.style.background = 'rgba(255,255,255,0.1)';
+                    }
+                }
+            </script>
+
+            <div
+                style="margin: 20px 0; text-align: left; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                <p style="margin: 5px 0; font-size: 0.95em;"><strong>Credits:</strong> Developed by Ataberk Doğanlı</p>
+                <p style="margin: 5px 0; font-size: 0.95em;"><strong>Disputes/Contact:</strong> <a
+                        href="mailto:info@xcthermal.com" style="color: #87CEEB;">info@xcthermal.com</a></p>
+            </div>
+
+            <div style="margin: 25px 0;">
+                <a href="https://buymeacoffee.com/doganliatag" target="_blank" class="bmc-button"
+                    style="display: inline-flex; align-items: center; gap: 10px; background-color: #FFDD00; color: #000000; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-family: 'Cookie', cursive, sans-serif; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: transform 0.2s;">
+                    <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="Buy me a coffee"
+                        style="height: 25px; width: auto;">
+                    <span style="font-size: 1.1em; font-family: Arial, sans-serif;">Buy me a coffee</span>
+                </a>
+            </div>
+
+            <button class="modal-login-btn"
+                onclick="document.getElementById('welcomeModalOverlay').classList.remove('active')">Let's Fly!
+                🪂</button>
+        </div>
+    </div>
+    <div id="confirmationModalOverlay" class="auth-modal-overlay">
+        <div class="auth-modal-content" style="text-align: center; max-width: 400px;">
+            <div style="text-align: right;"><button class="close-btn"
+                    onclick="document.getElementById('confirmationModalOverlay').classList.remove('active')">&times;</button>
+            </div>
+            <h2 id="confirmationTitle">Confirm Action</h2>
+            <p id="confirmationMessage">Are you sure?</p>
+            <div style="margin-top: 20px;">
+                <button id="confirmYesBtn" class="modal-login-btn">Yes</button>
+                <button class="modal-login-btn" style="background-color: #6c757d; margin-left: 10px;"
+                    onclick="document.getElementById('confirmationModalOverlay').classList.remove('active')">No</button>
+            </div>
+        </div>
+    </div>
+    <!-- Insufficient Credits Modal -->
+    <div id="creditsModalOverlay" class="auth-modal-overlay">
+        <div class="auth-modal-content" style="text-align: center; max-width: 400px;">
+            <div style="text-align: right;"><button class="close-btn"
+                    onclick="document.getElementById('creditsModalOverlay').classList.remove('active')">&times;</button>
+            </div>
+            <h2 style="color: #dc3545;">Insufficient Credits</h2>
+            <p>You need at least 1 credit to view the thermal forecast.</p>
+            <p>Would you like to add more credits?</p>
+            <div style="margin-top: 20px;">
+                <button class="modal-login-btn"
+                    onclick="document.getElementById('creditsModalOverlay').classList.remove('active'); document.getElementById('addCreditsModalOverlay').classList.add('active');">Add
+                    Credits</button>
+                <button class="modal-login-btn" style="background-color: #6c757d; margin-left: 10px;"
+                    onclick="document.getElementById('creditsModalOverlay').classList.remove('active')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Credits Modal -->
+    <div id="addCreditsModalOverlay" class="auth-modal-overlay">
+        <div class="auth-modal-content" style="text-align: center; max-width: 400px; margin: 0 auto;">
+            <div style="text-align: right;"><button class="close-btn"
+                    onclick="document.getElementById('addCreditsModalOverlay').classList.remove('active')">&times;</button>
+            </div>
+            <h2>Add Credits</h2>
+            <p style="color: white !important;">Your current credits: <strong>{{ current_user.credits }}</strong></p>
+            <form method="POST" action="{{ url_for('add_credits') }}">
+                <div class="form-group">
+                    <label for="amount">Amount to add</label>
+                    <input type="number" id="amount" name="amount" min="1" value="10" required
+                        style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.1); color: white;">
+                </div>
+                <button type="submit" class="modal-login-btn">Add Credits</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Modal (Restored Full Version) -->
+    {% if current_user.is_authenticated %}
+    <div id="profileModalOverlay" class="auth-modal-overlay">
+        <div class="profile-container auth-modal-content"
+            style="max-height: 85vh; overflow-y: auto; max-width: 800px; width: 90%;">
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h1 style="margin: 0; font-size: 2em; color: #007BFF;">{{ current_user.username }}</h1>
+                <button class="close-btn" onclick="closeProfileModal()"
+                    style="color: #333; font-size: 2em; background:none; border:none; cursor:pointer;">&times;</button>
+            </div>
+
+
+
+            <!-- Flash Messages -->
+            <div id="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+
+            <div class="profile-user-details">
+                <p>Email: <strong>{{ current_user.email }}</strong></p>
+                <p>Credits: <strong>{{ current_user.credits }}</strong></p>
+                <p>Joined: <strong>{{ current_user.created_at.strftime('%Y-%m-%d') }}</strong></p>
+            </div>
+
+            <div class="actions" style="margin: 20px 0; text-align: center;">
+                <a href="#" class="modal-login-btn"
+                    onclick="closeProfileModal(); document.getElementById('addCreditsModalOverlay').classList.add('active'); return false;">Add
+                    Credits</a>
+                <a href="{{ url_for('logout') }}" class="modal-login-btn"
+                    style="background: #dc3545; margin-left: 10px;">Logout</a>
+            </div>
+
+            <!-- Daily Interpreter Section (Redesigned) -->
+            <div class="daily-interpreter-section">
+                <div class="daily-interpreter-section">
+                    <div class="section-header">
+                        <h2>
+                            XcPerfect Alert
+                            <div class="info-tooltip-container">
+                                <span
+                                    style="font-size: 0.6em; color: #058ba0; cursor: help; vertical-align: super;">?</span>
+                                <div class="info-tooltip-text">
+                                    <strong>Automatic Daily Interpreter:</strong><br>
+                                    Sends you an email when the weather conditions are:<br>
+                                    1. <strong>Suitable for flight</strong> (based on your takeoff face preference).<br>
+                                    2. <strong>Good for XC</strong> (meets your minimum km requirement).<br>
+                                    3. <strong>Draws automatic XC route</strong> (Demo/Beta mode).
+                                </div>
+                            </div>
+                        </h2>
+                        <!-- Info button removed as requested -->
+                    </div>
+
+                    <!-- Info content block removed as requested -->
+
+                    <div id="info-content" class="info-content" style="display: none;">
+                        <strong>Automatic Daily Interpreter:</strong><br>
+                        Sends you an email when the weather conditions are:<br>
+                        1. <strong>Suitable for flight</strong> (based on your takeoff face preference).<br>
+                        2. <strong>Good for XC</strong> (meets your minimum km requirement).<br>
+                        3. <strong>Draws automatic XC route</strong> (Demo/Beta mode).
+                    </div>
+
+                    <form id="daily-interpreter-form">
+                        <div class="toggle-wrapper">
+                            <label class="switch">
+                                <input type="checkbox" id="dailyEmailEnabled" {% if current_user.daily_email_enabled
+                                    %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                            <span class="toggle-label">Send me an email if weather is XC Perfect!</span>
+                        </div>
+
+                        <div class="interpreter-settings"
+                            style="display: {% if current_user.daily_email_enabled %}block{% else %}none{% endif %};">
+
+                            <!-- Location Selection Hook (Keep existing logic but restyle?) -->
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label style="margin-bottom: 10px;">Select Location for Analysis:</label>
+                                <button type="button" id="select-from-map-btn"
+                                    style="width: 100%; padding: 12px; background: #058ba0; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s;">
+                                    Select from Map
+                                </button>
+
+                                <!-- Display Saved Location if exists -->
+                                <div id="saved-xc-location"
+                                    style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #eee; display: {% if current_user.xc_perfect_lat %}block{% else %}none{% endif %};">
+                                    <div
+                                        style="font-weight: bold; color: #058ba0; font-size: 0.9em; margin-bottom: 5px;">
+                                        Saved Location:</div>
+                                    <div style="display: flex; gap: 15px; font-size: 0.85em; color: #555;">
+                                        <span>Lat: <span id="dispXcLat">{{ current_user.xc_perfect_lat }}</span></span>
+                                        <span>Lon: <span id="dispXcLon">{{ current_user.xc_perfect_lon }}</span></span>
+                                        <span>Alt: <span id="dispXcAsl">{{ current_user.xc_perfect_asl }}</span>m</span>
+                                    </div>
+                                </div>
+
+                                <!-- Hidden inputs for logic (pre-filled with saved data) -->
+                                <div
+                                    style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px;">
+                                    <div>
+                                        <label style="font-size: 0.8em;">Lat</label>
+                                        <input type="number" id="xcLat" step="any" placeholder="Lat"
+                                            class="form-control" style="padding: 8px;"
+                                            value="{{ current_user.xc_perfect_lat or '' }}">
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 0.8em;">Lon</label>
+                                        <input type="number" id="xcLon" step="any" placeholder="Lon"
+                                            class="form-control" style="padding: 8px;"
+                                            value="{{ current_user.xc_perfect_lon or '' }}">
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 0.8em;">Alt (m)</label>
+                                        <input type="number" id="xcAsl" step="any" placeholder="Alt"
+                                            class="form-control" style="padding: 8px;"
+                                            value="{{ current_user.xc_perfect_asl or '' }}">
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="settings-grid">
+                                <div class="form-group">
+                                    <label for="dailyTakeoffDirections">Preferred Takeoff Face</label>
+                                    <select id="dailyTakeoffDirections" class="form-control">
+                                        <option value="" {% if not current_user.daily_takeoff_directions %}selected{%
+                                            endif %}>Any</option>
+                                        <option value="N" {% if current_user.daily_takeoff_directions=='N' %}selected{%
+                                            endif %}>N</option>
+                                        <option value="NE" {% if current_user.daily_takeoff_directions=='NE'
+                                            %}selected{% endif %}>NE</option>
+                                        <option value="E" {% if current_user.daily_takeoff_directions=='E' %}selected{%
+                                            endif %}>E</option>
+                                        <option value="SE" {% if current_user.daily_takeoff_directions=='SE'
+                                            %}selected{% endif %}>SE</option>
+                                        <option value="S" {% if current_user.daily_takeoff_directions=='S' %}selected{%
+                                            endif %}>S</option>
+                                        <option value="SW" {% if current_user.daily_takeoff_directions=='SW'
+                                            %}selected{% endif %}>SW</option>
+                                        <option value="W" {% if current_user.daily_takeoff_directions=='W' %}selected{%
+                                            endif %}>W</option>
+                                        <option value="NW" {% if current_user.daily_takeoff_directions=='NW'
+                                            %}selected{% endif %}>NW</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="dailyAiStyle">Daily Alert Style</label>
+                                    <select id="dailyAiStyle" class="form-control">
+                                        <option value="basic" {% if current_user.daily_ai_style=='basic' %}selected{%
+                                            endif %}>Basic</option>
+                                        <option value="pilot" {% if current_user.daily_ai_style=='pilot' %}selected{%
+                                            endif %}>Pilot</option>
+                                        <option value="xc" {% if current_user.daily_ai_style=='xc' %}selected{% endif
+                                            %}>XC
+                                        </option>
+                                        <option value="tandem" {% if current_user.daily_ai_style=='tandem' %}selected{%
+                                            endif %}>Tandem Pilot</option>
+                                        <option value="expert" {% if current_user.daily_ai_style=='expert' %}selected{%
+                                            endif %}>Expert Level</option>
+                                        <option value="speed" {% if current_user.daily_ai_style=='speed' %}selected{%
+                                            endif %}>Speed Flight</option>
+                                        <option value="acro" {% if current_user.daily_ai_style=='acro' %}selected{%
+                                            endif %}>Acro Flight</option>
+                                        <option value="ridge" {% if current_user.daily_ai_style=='ridge' %}selected{%
+                                            endif %}>Ridge Soaring</option>
+                                        <option value="xcperfect" {% if current_user.daily_ai_style=='xcperfect'
+                                            %}selected{% endif %}>XcPerfect Alert</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <div
+                                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                        <label for="dailyMinXcInput">Min XC Distance <span
+                                                id="minXcUnitLabel">(km)</span></label>
+                                        <label class="switch" style="transform: scale(0.8); margin: 0;">
+                                            <input type="checkbox" id="dailyMinXcToggle">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <input type="number" id="dailyMinXcInput" class="form-control"
+                                        data-original-km="{{ current_user.daily_min_xc_km or '' }}" placeholder=""
+                                        disabled>
+                                </div>
+                            </div>
+
+                            <div class="auto-route-group">
+                                <input type="checkbox" id="dailyAutoRoute" {% if current_user.daily_auto_route
+                                    %}checked{% endif %}>
+                                <label for="dailyAutoRoute" style="margin:0; cursor:pointer;">Draw automatic XC route
+                                    (Demo)</label>
+                            </div>
+
+                            <button type="button" id="save-daily" class="save-btn">Save Preferences</button>
+                            <span id="save-status" style="opacity: 0; transition: opacity 0.5s;">Saved
+                                Successfully!</span>
+                        </div>
+                    </form>
+                </div>
+
+                <script>
+                    // XcPerfect Map Selection Logic (3D)
+                    document.getElementById('select-from-map-btn').addEventListener('click', function (e) {
+                        e.preventDefault();
+                        if (!window.currentView) {
+                            alert('Map not initialized yet.');
+                            return;
+                        }
+
+                        // Hide modal
+                        document.getElementById('profileModalOverlay').classList.remove('active');
+
+                        // Add heartbeat frame
+                        const frame = document.createElement('div');
+                        frame.className = 'heartbeat-frame';
+                        document.body.appendChild(frame);
+                        document.body.classList.add('cursor-crosshair');
+
+                        // Disable normal map click
+                        if (typeof window.isXcPerfectSelecting !== 'undefined') {
+                            window.isXcPerfectSelecting = true;
+                        }
+
+                        // Esri View click listener
+                        // Store handler reference to remove it later
+                        const clickHandle = window.currentView.on("click", async function (event) {
+                            // Stop propagation if possible to avoid other map clicks? 
+
+                            const point = event.mapPoint;
+                            const lat = point.latitude;
+                            const lon = point.longitude;
+
+                            // Try to get elevation (async via API)
+                            let elevation = point.z || 0;
+                            if (window.fetchAltitude) {
+                                const fetchedAlt = await window.fetchAltitude(lat, lon);
+                                if (fetchedAlt !== null) elevation = fetchedAlt;
+                            }
+
+                            // Show Confirmation
+                            if (window.showXcPerfectConfirm) {
+                                window.showXcPerfectConfirm((confirmed) => {
+                                    frame.remove();
+                                    document.body.classList.remove('cursor-crosshair');
+                                    document.getElementById('profileModalOverlay').classList.add('active');
+
+                                    if (confirmed) {
+                                        document.getElementById('xcLat').value = lat.toFixed(5);
+                                        document.getElementById('xcLon').value = lon.toFixed(5);
+                                        document.getElementById('xcAsl').value = Math.round(elevation);
+                                    }
+                                });
+                            } else {
+                                document.getElementById('xcLat').value = lat.toFixed(5);
+                                document.getElementById('xcLon').value = lon.toFixed(5);
+                                document.getElementById('xcAsl').value = Math.round(elevation);
+                                document.getElementById('profileModalOverlay').classList.add('active');
+                            }
+
+                            // Re-enable normal map click
+                            if (typeof window.isXcPerfectSelecting !== 'undefined') {
+                                window.isXcPerfectSelecting = false;
+                            }
+                        });
+                    });
+                </script>
+
+                <!-- AI Reports -->
+                <h1 class="profile-section-title">AI Reports</h1>
+                <div class="history-list-container">
+                    {% if current_user.reports %}
+                    <ul class="transactions-list" id="ai-reports-list-3d">
+                        {% for report in current_user.reports %}
+                        <li class="{% if loop.index > 3 %}hidden-report{% endif %}">
+                            <span class="timestamp">{{ report.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                            <span class="description"><strong>Location:</strong> {{ report.lat|round(4) }}, {{
+                                report.lon|round(4) }}</span>
+                            <details>
+                                <summary style="cursor: pointer; margin-top: 5px; font-weight: bold; color: #007BFF;">
+                                    View
+                                    Details</summary>
+                                <div
+                                    style="background: #eee; padding: 10px; border-radius: 5px; margin-top: 5px; width: 100%; font-size: 0.9em; white-space: normal;">
+                                    {{ report.content | markdown | safe }}
+                                </div>
+                            </details>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% if current_user.reports|length > 3 %}
+                    <button id="show-more-reports-btn-3d" onclick="showMoreReports3D()">Show More</button>
+                    <script>
+                        function showMoreReports3D() {
+                            const hiddenReports = document.querySelectorAll('#ai-reports-list-3d .hidden-report');
+                            let count = 0;
+                            hiddenReports.forEach(report => {
+                                if (count < 3) {
+                                    report.classList.remove('hidden-report');
+                                    count++;
+                                }
+                            });
+                            // Hide button if no more hidden reports
+                            if (document.querySelectorAll('#ai-reports-list-3d .hidden-report').length === 0) {
+                                document.getElementById('show-more-reports-btn-3d').style.display = 'none';
+                            }
+                        }
+                    </script>
+                    {% endif %}
+                    {% else %}
+                    <p class="no-reports-text">No AI reports generated yet.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Split History -->
+                <div class="history-split">
+                    <div class="history-column">
+                        <h1 class="profile-section-title">Purchases</h1>
+                        <div class="history-list-container">
+                            {% if current_user.transactions %}
+                            <ul class="transactions-list">
+                                {% for transaction in current_user.transactions|sort(attribute='timestamp',
+                                reverse=true) %}
+                                {% if transaction.amount > 0 %}
+                                <li>
+                                    <span class="timestamp">{{ transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+                                        }}</span>
+                                    <span class="description"><strong>Type:</strong> {{ transaction.type | capitalize }}
+                                        -
+                                        {{ transaction.description or 'N/A' }}</span>
+                                    <span class="amount positive">
+                                        Amount: +{{ transaction.amount }} credits
+                                    </span>
+                                </li>
+                                {% endif %}
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p style="color: #666;">No transactions yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- Interpretations -->
+                    <div class="history-column">
+                        <h1 class="profile-section-title">Interpretations</h1>
+                        <div class="history-list-container">
+                            {% if current_user.transactions %}
+                            <ul class="transactions-list">
+                                {% for transaction in current_user.transactions|sort(attribute='timestamp',
+                                reverse=true) %}
+                                {% if transaction.amount < 0 %} <li>
+                                    <span class="timestamp">{{ transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+                                        }}</span>
+                                    <span class="description"><strong>Type:</strong> {{ transaction.type | capitalize }}
+                                        -
+                                        {{ transaction.description or 'N/A' }}</span>
+                                    <span class="amount negative">
+                                        Amount: {{ transaction.amount }} credits
+                                    </span>
+                                    </li>
+                                    {% endif %}
+                                    {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p style="color: #666;">No transactions yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+
+
+        <!-- Image Modal for Forecasts -->
+
+
+        <!-- Scripts -->
+        <script>
+            window.userIsAuthenticated = {{ 'true' if current_user.is_authenticated else 'false' }};
+            window.userCredits = {{ current_user.credits if current_user.is_authenticated else 0 }};
+            window.esriApiKey = "{{ esri_api_key or '' }}";
+
+            function closeProfileModal() {
+                document.getElementById('profileModalOverlay').classList.remove('active');
+                const userInfo = document.querySelector('.user-info');
+                if (userInfo) userInfo.style.display = '';
+            }
+
+            // Daily Interpreter Logic
+            document.addEventListener('DOMContentLoaded', () => {
+                const infoBtn = document.getElementById('info-btn');
+                const infoContent = document.getElementById('info-content');
+                if (infoBtn && infoContent) {
+                    infoBtn.addEventListener('click', () => {
+                        infoContent.style.display = infoContent.style.display === 'none' ? 'block' : 'none';
+                    });
+                }
+
+                const dailyEmailCheckbox = document.getElementById('dailyEmailEnabled');
+                const settingsContainer = document.querySelector('.interpreter-settings');
+                if (dailyEmailCheckbox && settingsContainer) {
+                    dailyEmailCheckbox.addEventListener('change', () => {
+                        settingsContainer.style.display = dailyEmailCheckbox.checked ? 'block' : 'none';
+                    });
+                }
+
+                const saveDailyBtn = document.getElementById('save-daily');
+                const saveStatus = document.getElementById('save-status');
+
+                // --- Min XC Logic Initialization ---
+                const xcToggle = document.getElementById('dailyMinXcToggle');
+                const xcInput = document.getElementById('dailyMinXcInput');
+                const xcLabel = document.getElementById('minXcUnitLabel');
+
+                function updateXcDisplay() {
+                    const units = localStorage.getItem('unitSystem') || 'metric';
+                    const isImperial = units === 'imperial';
+                    if (xcLabel) xcLabel.textContent = isImperial ? '(mi)' : '(km)';
+
+                    if (xcToggle.checked) {
+                        xcInput.disabled = false;
+                    } else {
+                        xcInput.disabled = true;
+                        xcInput.value = '';
+                    }
+                }
+
+                if (xcToggle && xcInput) {
+                    const originalKm = parseFloat(xcInput.dataset.originalKm);
+                    const units = localStorage.getItem('unitSystem') || 'metric';
+
+                    if (originalKm && originalKm > 0) {
+                        xcToggle.checked = true;
+                        if (units === 'imperial') {
+                            xcInput.value = (originalKm * 0.621371).toFixed(1);
+                        } else {
+                            xcInput.value = originalKm;
+                        }
+                    } else {
+                        xcToggle.checked = false;
+                        xcInput.value = '';
+                    }
+                    updateXcDisplay();
+
+                    xcToggle.addEventListener('change', updateXcDisplay);
+
+                    const unitSelect = document.getElementById('unitSelect');
+                    if (unitSelect) {
+                        unitSelect.addEventListener('change', () => {
+                            const newUnits = unitSelect.value;
+                            if (xcToggle.checked && xcInput.value) {
+                                const val = parseFloat(xcInput.value);
+                                if (!isNaN(val)) {
+                                    if (newUnits === 'imperial') {
+                                        xcInput.value = (val * 0.621371).toFixed(1);
+                                    } else {
+                                        xcInput.value = (val / 0.621371).toFixed(1);
+                                    }
+                                }
+                            }
+                            updateXcDisplay();
+                        });
+                    }
+                }
+
+                if (saveDailyBtn) {
+                    saveDailyBtn.addEventListener('click', async () => {
+                        const dailyEmailEnabled = document.getElementById('dailyEmailEnabled').checked;
+                        const dailyTakeoffDirections = document.getElementById('dailyTakeoffDirections').value;
+                        const dailyAiStyle = document.getElementById('dailyAiStyle').value;
+                        const dailyAutoRoute = document.getElementById('dailyAutoRoute').checked;
+
+                        let dailyMinXcKm = null;
+                        if (document.getElementById('dailyMinXcToggle').checked) {
+                            const val = parseFloat(document.getElementById('dailyMinXcInput').value);
+                            if (!isNaN(val)) {
+                                const units = localStorage.getItem('unitSystem') || 'metric';
+                                dailyMinXcKm = (units === 'imperial') ? (val / 0.621371) : val;
+                            }
+                        }
+
+                        try {
+                            const response = await fetch('/api/settings', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ dailyEmailEnabled, dailyTakeoffDirections, dailyMinXcKm, dailyAiStyle, dailyAutoRoute })
+                            });
+                            if (response.ok) {
+                                saveStatus.style.opacity = '1';
+                                setTimeout(() => { saveStatus.style.opacity = '0'; }, 3000);
+                            } else { alert('Failed to save settings.'); }
+                        } catch (e) { console.error(e); alert('Error saving settings.'); }
+                    });
+                }
+            });
+
+
+        </script>
+
+        <!-- ArcGIS JS (Load LAST) -->
+        <script src="https://js.arcgis.com/4.28/"></script>
+
+        <!-- Main 3D Logic -->
+        <script type="module" src="{{ url_for('static', filename='js/main3d.js') }}?v=8"></script>
+
+
+
+</body>
+
+</html>

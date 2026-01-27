@@ -1,0 +1,60 @@
+ * Serving Flask app 'app'
+ * Debug mode: on
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5005
+ * Running on http://192.168.1.104:5005
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 699-491-947
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[33mGET /static/spotair.css HTTP/1.1[0m" 404 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/stats.png HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/style.css?v=2 HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/search.svg HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "GET /static/js/main.js?v=2 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/settings.png HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/logo.png HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/js/ui/spotair_logic.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/js/services/autoMail.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "GET /static/js/map/initMap.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/js/ui/search.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/js/ui/panelToggle.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/js/ui/thermalPanel.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "GET /static/js/ui/history.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/js/services/thermalService.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/js/utils/promptAltitude.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "GET /static/js/services/aiService.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "GET /static/js/map/styleToggle.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/js/ui/hotspotToggle.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/js/ui/circleOverlay.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "GET /static/js/ui/settingsPanel.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/js/services/altitudeService.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/js/utils/mapStyleRadios.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/js/map/sunPosition.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/js/ui/confirmClickModal.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/js/map/paraglidingSites.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/js/utils/debounce.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "GET /static/js/ui/translations.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/js/ui/cloudGame.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:32] "[36mGET /static/js/map/thermalHotspots.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:33] "[36mGET /static/paraglider.png HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:33] "[32mGET /api/settings HTTP/1.1[0m" 302 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:33] "GET /login?next=/api/settings HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:33] "[32mGET /proxy/paragliding-sites?south=36.29984334426749&north=37.38759296405965&west=28.332222643886126&east=29.40462535954748 HTTP/1.1[0m" 302 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:33] "[32mGET /proxy/paragliding-sites?south=36.29984334426749&north=37.38759296405965&west=28.332222643886126&east=29.40462535954748 HTTP/1.1[0m" 302 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:33] "[32mGET /proxy/paragliding-sites?south=36.29984334426749&north=37.38759296405965&west=28.332222643886126&east=29.40462535954748 HTTP/1.1[0m" 302 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:33] "GET /login?next=/proxy/paragliding-sites?south%3D36.29984334426749%26north%3D37.38759296405965%26west%3D28.332222643886126%26east%3D29.40462535954748 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:33] "GET /login?next=/proxy/paragliding-sites?south%3D36.29984334426749%26north%3D37.38759296405965%26west%3D28.332222643886126%26east%3D29.40462535954748 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Dec/2025 11:20:33] "GET /login?next=/proxy/paragliding-sites?south%3D36.29984334426749%26north%3D37.38759296405965%26west%3D28.332222643886126%26east%3D29.40462535954748 HTTP/1.1" 200 -
+INFO:werkzeug: * Detected change in '/Users/ataberkdoganli/Desktop/xc/current version copy/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 699-491-947
+INFO:werkzeug: * Detected change in '/Users/ataberkdoganli/Desktop/xc/current version copy/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 699-491-947
+/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/multiprocessing/resource_tracker.py:301: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown: {'/mp-3yevtkaz'}
+  warnings.warn(

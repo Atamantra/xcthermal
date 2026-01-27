@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - XC Thermal</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}?v=6" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}?v=6">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}?v=6">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}?v=6">
+    <!-- Link to your main stylesheet (optional, but good for consistent branding) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Basic styling for the login page */
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Using Inter as per instructions */
+            background-color: #f4f7f6;
+            /* Light background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            /* Full viewport height */
+            margin: 0;
+            color: #333;
+            /* Dark text for readability */
+        }
+
+        .auth-container {
+            background-color: #ffffff;
+            /* White card background */
+            padding: 30px;
+            border-radius: 12px;
+            /* Rounded corners */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            /* Soft shadow */
+            width: 100%;
+            max-width: 400px;
+            /* Max width for larger screens */
+            text-align: center;
+            box-sizing: border-box;
+            /* Include padding in width */
+        }
+
+        .auth-container h1 {
+            color: #007BFF;
+            /* A vibrant blue for headings */
+            margin-bottom: 25px;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .auth-container form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            /* Spacing between form elements */
+        }
+
+        .auth-container label {
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: 600;
+            /* Slightly bolder labels */
+            color: #555;
+        }
+
+        .auth-container input[type="text"],
+        .auth-container input[type="password"] {
+            width: 100%;
+            /* Full width within container */
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            /* Light border */
+            border-radius: 8px;
+            /* Rounded input fields */
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .auth-container input[type="text"]:focus,
+        .auth-container input[type="password"]:focus {
+            border-color: #007BFF;
+            /* Highlight on focus */
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        .auth-container input[type="submit"] {
+            background-color: #007BFF;
+            /* Blue submit button */
+            color: white;
+            padding: 14px 25px;
+            border: none;
+            border-radius: 8px;
+            /* Rounded button */
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+        }
+
+        .auth-container input[type="submit"]:hover {
+            background-color: #0056b3;
+            /* Darker blue on hover */
+            transform: translateY(-2px);
+            /* Slight lift effect */
+        }
+
+        .auth-container p {
+            margin-top: 25px;
+            font-size: 0.95em;
+            color: #666;
+        }
+
+        .auth-container a {
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-container a:hover {
+            text-decoration: underline;
+        }
+
+        /* Flash message styling (consistent with index.html) */
+        #flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash-message {
+            padding: 12px 18px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.95em;
+            font-weight: 500;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .flash-message.success {
+            background-color: #d4edda;
+            /* Light green */
+            color: #155724;
+            /* Dark green text */
+            border: 1px solid #c3e6cb;
+        }
+
+        .flash-message.danger {
+            background-color: #f8d7da;
+            /* Light red */
+            color: #721c24;
+            /* Dark red text */
+            border: 1px solid #f5c6cb;
+        }
+
+        .flash-message.info {
+            background-color: #d1ecf1;
+            /* Light blue */
+            color: #0c5460;
+            /* Dark blue text */
+            border: 1px solid #bee5eb;
+        }
+    </style>
+    <div id="mapLogoContainer">
+        <a href="/" id="mapLogoLink">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="XC Thermal Logo" id="mapLogo" />
+        </a>
+    </div>
+
+</head>
+
+<body>
+    <div class="auth-container">
+        <h1>Login to XC Thermal</h1>
+        <div id="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
+        <form method="POST" action="{{ url_for('login') }}">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required autocomplete="username">
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required autocomplete="current-password">
+
+            <input type="submit" value="Login">
+        </form>
+        <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+    </div>
+    <script>
+        // JavaScript for flash messages fade-out
+        document.addEventListener('DOMContentLoaded', () => {
+            const flashMessagesContainer = document.getElementById('flash-messages');
+            if (flashMessagesContainer) {
+                const messages = flashMessagesContainer.querySelectorAll('.flash-message');
+                messages.forEach(msg => {
+                    setTimeout(() => {
+                        msg.style.opacity = '0';
+                        msg.style.transition = 'opacity 0.5s ease-out';
+                        setTimeout(() => msg.remove(), 500); // Remove after transition
+                    }, 5000); // Fade out after 5 seconds
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,3497 @@
+/* === Global Reset === */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  /* Prevent scrollbars */
+  font-family: Arial, sans-serif;
+}
+
+/* Buy Me a Coffee Button Hover */
+.bmc-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* === Map === */
+#map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  z-index: 1;
+}
+
+#mapLogoContainer {
+  position: absolute;
+  top: 2px;
+  /* Adjust as needed */
+  left: 1px;
+  /* Adjust as needed */
+  transform: none;
+  /* Remove centering transform */
+  z-index: 999999;
+  width: 150px;
+  /* Set as needed */
+  height: auto;
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 1s ease-out, transform 1s ease-out;
+}
+
+#mapLogoContainer.logo-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#mapLogoContainer img {
+  width: 100%;
+  height: auto;
+}
+
+#mapLogo {
+  max-height: 42px;
+  opacity: 1;
+  /* fully opaque */
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
+}
+
+#searchToggleBtn {
+  position: absolute;
+  top: 40px;
+  left: 10px;
+  z-index: 6;
+  width: 58px;
+  height: 58px;
+  padding: 10px;
+  border: none;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  @extend .glass-base;
+  /* Apply glassmorphism */
+}
+
+#searchToggleBtn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+#searchToggleBtn img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  filter: drop_shadow(0 0 2px rgba(0, 0, 0, 0.5));
+}
+
+
+
+#searchPanel {
+  position: absolute;
+  top: 40px;
+  left: 10px;
+  z-index: 2001;
+  /* Raised z-index */
+  background: rgba(255, 255, 255, 0.95);
+  padding: 12px;
+  border-radius: 10px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#mapboxgl-ctrl-geocoder mapboxgl-ctrl {
+  min-width: 200px;
+  width: 200px;
+}
+
+#geocoder-container .mapboxgl-ctrl-geocoder {
+  width: 100%;
+  font-size: 14px;
+  border-radius: 6px;
+}
+
+/* ArcGIS Search Widget Styling - REMOVED */
+
+#searchPanel .mapboxgl-ctrl-geocoder input[type="text"],
+#searchPanel input[type="number"] {
+  transition: all 0.3s ease;
+  outline: none;
+  width: 100%;
+  padding: 8px;
+  font-size: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+#searchPanel input[type="text"]:focus,
+.mapboxgl-ctrl-geocoder input:focus {
+  transform: scale(1.03);
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
+  border-color: #007bff;
+}
+
+#clearHistoryBtn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 12px;
+  text-align: right;
+  cursor: pointer;
+  padding: 4px;
+  margin-bottom: 6px;
+  margin-left: auto;
+  display: block;
+}
+
+#clearHistoryBtn:hover {
+  color: #ff3333;
+}
+
+/* Fix overlapping search icon in Mapbox Geocoder */
+/* Fix overlapping search icon in Mapbox Geocoder */
+.mapboxgl-ctrl-geocoder .mapboxgl-ctrl-geocoder--icon-search {
+  display: none !important;
+}
+
+
+
+
+#historyToggle {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  background: rgba(0, 0, 0, 0.47);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.mapboxgl-ctrl-geocoder {
+  min-width: 200px;
+}
+
+#historyList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  max-height: 150px;
+  overflow-y: auto;
+  font-size: 13px;
+}
+
+#historyList li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  font-size: 14px;
+  border-bottom: 1px solid #444;
+}
+
+#historyList li span {
+  flex: 1;
+  cursor: pointer;
+}
+
+#historyList li:hover {
+  background-color: #333;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Base Glassmorphism Style (Matching .user-info) */
+.glass-base {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 255, 255, 0.2) 100%);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.glass-base:hover {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0.3) 100%);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  transform: translateY(-1px);
+}
+
+/* Specific Glassmorphism for Modals */
+.glass-modal {
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 15px;
+  transition: all 0.3s ease;
+}
+
+/* Button Positioning & Styling (Liquid Glass Applied) */
+#searchToggleBtn {
+  position: absolute;
+  top: 40px;
+  left: 10px;
+  z-index: 6;
+  width: 58px;
+  height: 58px;
+  padding: 10px;
+  border: none;
+  /* Border handled by liquid glass style */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  /* Liquid Glass Properties Explicitly Applied */
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 255, 255, 0.2) 100%);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+#searchToggleBtn:hover {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0.3) 100%);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  transform: translateY(-1px);
+}
+
+#searchToggleBtn img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+}
+
+#settingsBtn {
+  position: absolute;
+  top: 105px;
+  left: 10px;
+  width: 58px;
+  height: 58px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  cursor: pointer;
+  z-index: 2;
+  /* Liquid Glass Properties */
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 255, 255, 0.2) 100%);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+#settingsBtn:hover {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0.3) 100%);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  transform: translateY(-1px);
+}
+
+#settingsBtn img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+}
+
+#statsButton {
+  position: absolute;
+  top: 170px;
+  left: 10px;
+  z-index: 6;
+  width: 58px;
+  height: 58px;
+  padding: 10px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: white;
+  cursor: pointer;
+  /* Liquid Glass Properties */
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 255, 255, 0.2) 100%);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+#statsButton:hover {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0.3) 100%);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  transform: translateY(-1px);
+}
+
+#statsButton img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.5));
+}
+
+#tutorialBtn {
+  position: absolute;
+  top: 240px;
+  left: 21px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+  /* Liquid Glass Properties */
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 255, 255, 0.2) 100%);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+#tutorialBtn:hover {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0.3) 100%);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  transform: translateY(-1px);
+}
+
+#creditsBtn {
+  position: absolute;
+  top: 285px;
+  left: 21px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  font-style: italic;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+  /* Liquid Glass Properties */
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 255, 255, 0.2) 100%);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+#creditsBtn:hover {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0.3) 100%);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  transform: translateY(-1px);
+}
+
+#calculatorBtn {
+  position: absolute;
+  top: 330px;
+  left: 21px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+  /* Liquid Glass Properties */
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 255, 255, 0.2) 100%);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: none;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+#calculatorBtn:hover {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0.3) 100%);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  transform: translateY(-1px);
+}
+
+#calculatorBtn.active {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.6), rgba(59, 130, 246, 0.6));
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+}
+
+#calculatorBtn img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+  padding-bottom: 1px;
+}
+
+#calculatorPanel {
+  position: absolute;
+  top: 35px;
+  right: 8px;
+  width: 150px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 5px;
+  border-radius: 12px;
+  z-index: 2002;
+  box-shadow: 0 4px 20px 5px rgb(0 0 0);
+  display: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Auth modal content restoration */
+.auth-modal-content {
+  padding: 20px 0px;
+  /* text-align: center; REMOVE/DISABLE per screenshot context if needed */
+  max-width: 300px;
+  width: 40%;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 50%);
+  @extend .glass-modal;
+}
+
+.auth-modal-content h1 {
+  margin: 0;
+  font-size: 2em;
+  color: #058ba0 !important;
+}
+
+.auth-modal-content h2 {
+  color: #04788a !important;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+  margin-top: 20px;
+  text-shadow: none !important;
+}
+
+.auth-modal-content p {
+  /* font-size: 1.1em; */
+  margin-bottom: 20px;
+  color: #ffffff !important;
+}
+
+.credit-usage-text {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+/* Confirmation Button Restoration */
+.confirmation-btn {
+  margin: 10px 5px 0 5px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.confirmation-btn.confirm {
+  background-color: #28a745;
+  color: white;
+}
+
+.confirmation-btn.confirm:hover {
+  background-color: #218838;
+}
+
+.confirmation-btn.cancel {
+  background-color: #dc3545;
+  color: white;
+}
+
+.confirmation-btn.cancel:hover {
+  background-color: #c82333;
+}
+
+/* Specific Glassmorphism for Modals (Liquid Glass variant) */
+.glass-modal {
+  position: relative;
+  isolation: isolate;
+
+  /* Base translucent background (more transparent) */
+  background-color: rgb(255 255 255 / 20%);
+  /* Reduced from 40% */
+
+  /* Deep shadows for modal separation */
+  box-shadow:
+    0 15px 30px rgb(0 0 0 / 15%),
+    /* Softer shadow */
+    0 0 0 1px rgb(255 255 255 / 20%) inset;
+  /* Softer inner glow */
+
+  border-radius: 18px;
+  /* Smaller radius for modals */
+  padding: 15px 25px;
+  /* Reduced padding */
+
+  transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+  overflow: hidden;
+  /* Contain the pseudo-elements */
+}
+
+/* Distortion Layer (Modals) */
+.glass-modal::before {
+  backdrop-filter: blur(6px);
+  /* Less blur for modals */
+  -webkit-backdrop-filter: blur(6px);
+  filter: url(#glass-distortion);
+  z-index: -1;
+}
+
+/* Auth modal content adjustment */
+.auth-modal-content {
+  padding: 20px 30px;
+  /* Reduced padding */
+  max-width: 400px;
+  /* Reduced max-width */
+}
+
+.auth-modal-content h2 {
+  font-size: 1.8em;
+  /* Smaller font */
+}
+
+.auth-modal-content p {
+  font-size: 1em;
+  /* Smaller font */
+}
+
+/* Confirmation Button Adjustments */
+.confirmation-btn {
+  padding: 8px 16px;
+  /* Reduced padding */
+  font-size: 0.9em;
+  /* Smaller font */
+  margin: 8px 4px;
+  /* Reduced margin */
+}
+
+.confirmation-btn.confirm::before {
+  background-color: rgb(40 167 69 / 30%);
+  /* More transparent tint */
+}
+
+.confirmation-btn.confirm:hover::before {
+  background-color: rgb(40 167 69 / 40%);
+}
+
+.confirmation-btn.cancel::before {
+  background-color: rgb(220 53 69 / 30%);
+  /* More transparent tint */
+}
+
+.confirmation-btn.cancel:hover::before {
+  background-color: rgb(220 53 69 / 40%);
+}
+
+/* === Thermal Forecast Box === */
+#thermalBox {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  max-width: 500px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  /* transition: max-height 0.3s ease, border-radius 0.3s ease; REMOVED FOR PERFORMANCE */
+  transition: border-radius 0.3s ease;
+  overflow: hidden;
+  max-height: 36px;
+  @extend .glass-base;
+  /* Apply glassmorphism */
+  backdrop-filter: none !important;
+  /* PERFORMANCE CRITICAL: Disable blur on this large expanding panel */
+  -webkit-backdrop-filter: none !important;
+  background: rgba(30, 30, 30, 0.95) !important;
+  /* Solid fallback */
+}
+
+#thermalBox.expanded {
+  max-height: 75vh;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  display: block;
+  flex-direction: column;
+  z-index: 10;
+}
+
+#thermalBox.collapsed {
+  display: none;
+}
+
+/* Header (Top Clickable Strip) */
+#thermalHeader {
+  height: 36px;
+  line-height: 36px;
+  font-size: 15px;
+  /* slightly larger for readability */
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+
+  color: #ffffff;
+  background-color: rgba(30, 30, 30, 0.25);
+  /* more contrast, reliable fallback */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  will-change: backdrop-filter;
+  transform: translateZ(0);
+  /* force GPU acceleration on Safari */
+
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: all 0.3s ease;
+}
+
+
+/* Image Scroll Area */
+#thermalImageScroll {
+  flex: 1 1 auto;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 10px;
+  background: rgba(222, 222, 222, 1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+}
+
+/* Forecast Image */
+#thermalImage {
+  display: none;
+  width: 100%;
+  height: auto;
+  max-height: 50vh;
+  border-radius: 12px;
+  object-fit: contain;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 2;
+  position: relative;
+}
+
+/* Placeholder Text */
+#thermalPlaceholder {
+  z-index: 2;
+  text-align: center;
+  padding: 10px;
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 17px;
+  display: block;
+  font-style: normal;
+}
+
+
+
+/* === Map Controls === */
+.mapboxgl-ctrl-top-right .mapboxgl-ctrl {
+  margin: 10px;
+  position: relative;
+  /* or absolute */
+  top: 30px !important;
+}
+
+.mapboxgl-ctrl-geolocate,
+.mapboxgl-ctrl-compass {
+  width: 38px !important;
+  height: 38px !important;
+}
+
+.mapboxgl-ctrl-zoom-in,
+.mapboxgl-ctrl-zoom-out {
+  display: none !important;
+}
+
+/* button for 3d */
+
+.mapboxgl-ctrl-group .map-style-toggle {
+  width: 38px;
+  height: 38px;
+  font-weight: bold;
+  font-size: 13px;
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.mapboxgl-ctrl-group .map-style-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* === Daily Interpreter Redesign (Profile Modal) === */
+.daily-interpreter-section {
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #ffffff;
+  text-align: left;
+  position: relative;
+}
+
+/* Ensure Auth Modal Labels match request */
+.auth-modal-content label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #058ba0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.daily-interpreter-section h2 {
+  margin: 0;
+  color: #058ba0;
+  font-size: 1.6em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 25px;
+}
+
+.info-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #058ba0;
+  font-size: 1.3em;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background-color 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-btn:hover {
+  background-color: rgba(5, 139, 160, 0.1);
+}
+
+.info-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  border: 1px solid #bde0fe;
+  border-color: rgba(5, 139, 160, 0.2);
+  color: #555;
+  font-size: 0.95em;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  line-height: 1.6;
+}
+
+/* User Info in Nav */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  pointer-events: auto;
+  /* Ensure it captures clicks */
+}
+
+.user-info:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.user-info:active {
+  transform: translateY(0);
+}
+
+/* Toggle Switch */
+.toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #cbd5e1;
+  transition: .3s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+input:checked+.slider {
+  background-color: #058ba0;
+}
+
+input:checked+.slider:before {
+  transform: translateX(24px);
+}
+
+.toggle-label {
+  font-weight: 600;
+  color: #058ba0;
+  font-size: 1.05em;
+}
+
+.interpreter-settings {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 500px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.9em;
+  color: #666;
+  font-weight: 600;
+}
+
+/* Ensure inputs in modal have clean style */
+.form-control,
+.daily-interpreter-section input[type="text"],
+.daily-interpreter-section input[type="number"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 1em;
+  box-sizing: border-box;
+  font-family: inherit;
+  color: #333;
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus,
+.daily-interpreter-section input[type="text"]:focus,
+.daily-interpreter-section input[type="number"]:focus {
+  border-color: #058ba0;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(5, 139, 160, 0.15);
+}
+
+.auto-route-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 25px;
+  color: #555;
+  background: #fff;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #f0f0f0;
+}
+
+.auto-route-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #058ba0;
+  cursor: pointer;
+}
+
+.save-btn {
+  background-color: #058ba0;
+  color: white;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 10px;
+  font-size: 1.05em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  display: block;
+  width: 100%;
+  letter-spacing: 0.02em;
+}
+
+.save-btn:hover {
+  background-color: #047688;
+  transform: translateY(-1px);
+}
+
+.save-btn:active {
+  transform: translateY(1px);
+}
+
+#save-status {
+  display: block;
+  text-align: center;
+  margin-top: 10px;
+  font-weight: 500;
+  color: #058ba0;
+}
+
+/* Prevent zooming on iOS */
+#searchPanel input[type="text"],
+.mapboxgl-ctrl-geocoder input {
+  /* General input style in search panel */
+  font-size: 16px !important;
+}
+
+/* ai toggle button */
+#aiPanel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  transform: translateX(100%);
+  height: 100%;
+  width: 320px;
+  max-width: 100%;
+  padding: 20px;
+  z-index: 9999;
+
+  /* Glassy, frosted look */
+  background: rgb(0 0 0 / 48%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(14px);
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.2);
+
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+
+  overflow-y: auto;
+  transition: transform 0.3s ease-in-out;
+  will-change: transform;
+  color: black;
+  line-height: 1.6;
+  font-size: 16px;
+  -webkit-overflow-scrolling: touch;
+}
+
+#aiPanel.active {
+  transform: translateX(0);
+}
+
+#aiToggleBtn,
+#fakeAiToggleBtn {
+  position: fixed;
+  top: 181px;
+  left: 60px;
+  /* Moved left to be closer to stats button */
+  transform: translateX(0);
+  /* Removed centering transform since we are positioning explicitly */
+  z-index: 1;
+  padding: 10px 16px;
+
+  color: white;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.25), rgba(59, 130, 246, 0.25));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+
+  animation: bounce 1s infinite, rainbow-glow 2s linear infinite;
+  /* Added rainbow-glow */
+  display: none;
+  transition: all 0.3s ease;
+}
+
+#aiToggleBtn:hover,
+#fakeAiToggleBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+
+@keyframes bounce {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(7px);
+  }
+}
+
+#aiCloseBtn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 38px;
+  color: #fff;
+  cursor: pointer;
+}
+
+#aiPanel.active {
+  transform: translateX(0);
+}
+
+.ai-panel-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #ffffff;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 6px;
+}
+
+#aiOutput {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin-top: 12px;
+  padding-bottom: 60px;
+  /* so long text doesn’t get cut off */
+  color: white;
+}
+
+.ai-output-text {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #111827;
+  white-space: pre-wrap;
+}
+
+/* footer */
+
+#verticalFooter {
+  position: fixed;
+  bottom: 265px;
+  /* Move it up from the absolute bottom */
+  right: 2px;
+  transform: rotate(-90deg);
+  transform-origin: bottom right;
+  background: rgba(255, 255, 255, 0);
+  font-size: 10px;
+  padding: 6px 10px;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+#verticalFooter a {
+  color: #333;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+#verticalFooter a:hover {
+  text-decoration: underline;
+}
+
+
+
+/* ai */
+.hour-pill {
+  background: #f1f5f9;
+  border-radius: 10px;
+  margin: 6px 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #cbd5e1;
+}
+
+.pill-header {
+  padding: 10px 14px;
+  font-weight: 600;
+  background-color: #e2e8f0;
+  cursor: pointer;
+}
+
+.pill-body {
+  max-height: 0;
+  padding: 0 14px;
+  font-size: 14px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.hour-pill.expanded .pill-body {
+  max-height: 500px;
+  padding: 10px 14px;
+}
+
+#aiOutput {
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+#aiOutput h2 {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 16px 0 8px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 4px;
+}
+
+#aiOutput strong {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+#settingsBtn {
+  position: absolute;
+  top: 105px;
+  left: 10px;
+  width: 58px;
+  height: 58px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  cursor: pointer;
+  z-index: 2;
+  @extend .glass-base;
+  /* Apply glassmorphism */
+}
+
+#settingsBtn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+#settingsBtn img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop_shadow(0 0 2px rgba(0, 0, 0, 0.5));
+}
+
+/* style.css (example - adjust as needed for your design) */
+.settings-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 215px;
+  /* Or whatever width you prefer */
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.9);
+  /* Semi-transparent white */
+  backdrop-filter: blur(8px);
+  /* Glassmorphism effect */
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+  transform: translateX(100%);
+  /* Start off-screen to the right */
+  transition: transform 0.3s ease-out;
+  /* Smooth slide-in/out */
+  z-index: 10004;
+  /* Below tutorial (20000) but above map controls */
+  padding: 20px;
+  box-sizing: border-box;
+  /* Include padding in the width/height */
+  overflow-y: auto;
+  /* For scrollable content if it gets long */
+}
+
+
+.settings-panel.active {
+  transform: translateX(0);
+  /* Slide into view */
+  z-index: 21000;
+}
+
+
+.settings-panel .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #333;
+}
+
+.settings-panel h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.setting-group {
+  margin-bottom: 15px;
+}
+
+.setting-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
+}
+
+/* Profile Text Styling */
+.profile-container p {
+  color: #000000 !important;
+}
+
+.no-reports-text {
+  color: #000000 !important;
+}
+
+.setting-group select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  font-size: 16px;
+  /* Increased font size */
+}
+
+/*altitude*/
+
+.altitude-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.altitude-modal.hidden {
+  display: none;
+}
+
+.altitude-box {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  width: 280px;
+  color: #fff;
+}
+
+.altitude-box input {
+  width: 180px;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  margin: 10px 0;
+  text-align: center;
+  font-size: 16px;
+}
+
+.altitude-buttons button {
+  margin: 0 10px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: rgba(255, 255, 255, 0.8);
+  color: #000;
+  font-weight: bold;
+}
+
+
+/* hotspots button */
+
+#hotspotToggleContainer {
+  position: absolute;
+  top: 210px;
+  right: 8px;
+  z-index: 1;
+  padding: 6px 10px;
+  /* Restored padding for spacing */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Center content */
+  font-family: Arial, sans-serif;
+
+  /* Glass Base (Apple-like) inline for this element to ensure correct sizing */
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.6) 0%,
+      rgba(255, 255, 255, 0.4) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+  border-right-color: rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 8px 32px 0 rgba(31, 38, 135, 0.15),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+
+  border-radius: 12px;
+  /* Compact rounded corners */
+  width: auto;
+  /* Ensure it shrinks to content */
+  height: auto;
+  /* Ensure it shrinks to content */
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+#hotspotToggleContainer:hover {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.75) 0%,
+      rgba(255, 255, 255, 0.55) 100%);
+  transform: scale(1.02);
+}
+
+.hotspot-checkbox {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: white;
+  margin: 0;
+  /* Remove any default margin */
+}
+
+.hotspot-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.checkmark {
+  width: 16px;
+  height: 16px;
+  background-color: white;
+  border-radius: 4px;
+  margin-right: 8px;
+  position: relative;
+}
+
+.checkmark::after {
+  content: "✔︎";
+  color: black;
+  font-weight: bold;
+  position: absolute;
+  left: 3px;
+  top: -1px;
+  font-size: 16px;
+  display: none;
+}
+
+.hotspot-checkbox input[type="checkbox"]:checked+.checkmark::after {
+  display: block;
+}
+
+.label-text {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Basic map button styling */
+#statsButton {
+  position: absolute;
+  top: 170px;
+  left: 10px;
+  z-index: 6;
+  width: 58px;
+  height: 58px;
+  padding: 10px;
+  border: none;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: white;
+  cursor: pointer;
+  @extend .glass-base;
+  /* Apply glassmorphism */
+}
+
+#statsButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* Optional: Glow effect when area is selected */
+.statsIcon.glow {
+  box-shadow: 0 0 10px 3px rgba(0, 200, 255, 0.8);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+#statsButton img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  filter: drop_shadow(0 0 3px rgba(0, 0, 0, 0.5));
+}
+
+.map-toggle-group {
+  position: absolute;
+  top: 250px;
+  /* adjust based on your layout */
+  right: 8px;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  padding: 4px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-family: Arial, sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease;
+}
+
+.map-radio {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+
+.map-radio:last-child {
+  margin-bottom: 0;
+}
+
+.radio-label {
+  font-size: 13px;
+  color: white;
+}
+
+/* Basic Navigation Styling */
+.main-nav {
+  background-color: transparent;
+  padding: 10px 3px;
+  display: flex;
+  justify-content: flex-end;
+  /* Align to the right */
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2001;
+  /* Ensure it's above the map AND modals */
+  color: white;
+  font-size: 0.9em;
+}
+
+.main-nav a {
+  color: white;
+  text-decoration: none;
+  margin-left: 15px;
+  font-weight: bold;
+  transition: color 0.3s ease;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+}
+
+.main-nav a:hover {
+  color: #4CAF50;
+  /* Example hover color */
+}
+
+
+
+.user-info {
+  display: flex;
+  font-size: 0.9em;
+  top: 8px;
+  color: #ffffff;
+  background: linear-gradient(135deg, rgb(255 255 255) 0%, rgb(254 255 0 / 20%) 100%);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgb(255 255 255 / 21%);
+  box-shadow: 0 4px 12px rgb(255 255 255 / 66%);
+  padding: 0px 0px;
+  border-radius: 113px;
+  white-space: nowrap;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+  gap: -6px;
+  transition: all 0.3s ease;
+  align-content: flex-end;
+  flex-wrap: nowrap;
+  flex-direction: column;
+  cursor: pointer;
+  z-index: 2005;
+  /* Ensure above lower layers */
+  pointer-events: auto;
+}
+
+.user-info:hover {
+  transform: translateX(-50%) scale(1.05);
+  box-shadow: 0 6px 16px rgb(255 255 255 / 80%);
+}
+
+.hamster-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.user-info .credits {
+  font-size: 1.2em;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+/* Flash Messages Styling */
+/* Container positioning */
+#flash-messages-container {
+  position: fixed;
+  top: 68px;
+  /* 5px lower than your previous 60px */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Centers the message box */
+  width: 100%;
+  /* container spans width, but children fit content */
+  pointer-events: none;
+  /* Allows clicking through the empty space around the message */
+}
+
+/* The Dark Glassy Bubble */
+.flash-message {
+  pointer-events: auto;
+  /* Re-enable clicking on the message itself */
+  width: fit-content;
+  /* Shrinks to fit text exactly */
+  max-width: 70%;
+  /* Prevents it from getting too wide on mobile */
+  padding: 12px 30px;
+  margin-bottom: 10px;
+
+  /* Typography */
+  color: #ffffff;
+  /* Bright white text */
+  font-family: sans-serif;
+  font-weight: 500;
+  text-align: center;
+  letter-spacing: 0.5px;
+
+  /* Liquid Glass Effect */
+  background: rgba(20, 20, 20, 0.75);
+  /* Dark semi-transparent background */
+  backdrop-filter: blur(12px);
+  /* The "frosted" blur effect */
+  -webkit-backdrop-filter: blur(12px);
+  /* Safari support */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  /* Subtle white glass edge */
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  /* Deep shadow for depth */
+
+  border-radius: 50px;
+  /* Fully rounded "pill" shape */
+
+  /* Animation settings */
+  opacity: 1;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  animation: floatIn 0.5s ease-out;
+}
+
+/* Optional: Slight color tints for Success/Error via Border/Glow
+   (Keeps background dark to maintain the glass look) */
+.flash-message.success {
+  border-color: transparent;
+  /* Removes the border line */
+  box-shadow: none;
+  /* Removes the glow */
+}
+
+.flash-message.danger {
+  border-color: rgba(231, 76, 60, 0.5);
+  /* Reddish tint on edge */
+  box-shadow: 0 0 15px rgba(231, 76, 60, 0.2);
+  /* Red glow */
+}
+
+/* The Close 'X' Button */
+.close-btn {
+  margin-left: 15px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #ffffff;
+  /* White */
+  background: transparent;
+  /* Transparent */
+  border: none;
+  font-size: 2rem;
+  /* Larger */
+  transition: color 0.3s, transform 0.2s;
+}
+
+.close-btn:hover {
+  color: #ddd;
+  transform: scale(1.1);
+}
+
+/* Animation for entering */
+@keyframes floatIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Authentication Modal Styles */
+.auth-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  /* Darker overlay */
+  backdrop-filter: blur(8px);
+  /* Glass effect */
+  -webkit-backdrop-filter: blur(8px);
+  /* For Safari support */
+  z-index: 1000;
+  /* Ensure it's on top of everything */
+  display: flex;
+  /* Use flexbox for centering */
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  /* Start hidden */
+  visibility: hidden;
+  /* Start hidden for accessibility/pointer events */
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.auth-modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.auth-modal-content {
+  padding: 20px 30px;
+  /* Reduced padding */
+  text-align: center;
+  max-width: 380px;
+  /* Reduced max-width */
+  width: 90%;
+  color: #ffffff;
+  text-shadow: 0 0px 1px rgba(0, 0, 0, 0.5);
+  @extend .glass-modal;
+  /* Apply glassmorphism */
+}
+
+.auth-modal-content h1 {
+  margin: 0;
+  font-size: 2em;
+  color: #058ba0 !important;
+}
+
+.auth-modal-content h2 {
+  color: #058ba0 !important;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+  margin-top: 20px;
+  text-shadow: none !important;
+}
+
+.auth-modal-content p {
+  font-size: 1.1em;
+  margin-bottom: 20px;
+  color: #0000000 !important;
+}
+
+.auth-modal-content .form-group {
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.profile-container {
+  max-width: 525px;
+  text-align: center;
+  color: #333;
+  max-height: 82vh;
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Welcome Modal Overrides */
+#welcomeContent {
+  height: auto !important;
+  /* Allow auto height for content */
+  max-height: 90vh;
+  /* Cap it */
+}
+
+#welcomeContent p {
+  color: #ffffff !important;
+  /* User requested white text for Welcome Modal */
+}
+
+#welcomeContent h2 {
+  color: #ffffff !important;
+  /* Ensure header is also visible/white */
+  border-bottom: none !important;
+  /* Remove the teal border */
+}
+
+/* Confirmation Modal Override */
+#confirmContent {
+  height: auto !important;
+  padding-bottom: 25px;
+  /* Reasonable padding */
+}
+
+/* History Split Layout */
+.history-split {
+  display: flex;
+  gap: 20px;
+  text-align: left;
+  margin-top: 20px;
+}
+
+.history-column {
+  flex: 1;
+  width: 50%;
+  min-width: 0;
+}
+
+.history-column h1,
+.history-column h2 {
+  font-size: 1.3em !important;
+  margin-top: 0 !important;
+}
+
+.history-list-container {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+/* Base Pill Link */
+.pill-link {
+  display: inline-block;
+  padding: 2px 8px;
+  /* Reduced padding */
+  margin: 0 4px;
+  border-radius: 999px;
+  color: #000000 !important;
+  /* Text color */
+  background: #e0e0e0;
+  text-decoration: none !important;
+  font-size: 0.8em;
+  /* Reduced font size */
+  font-weight: bold;
+  transition: transform 0.2s, box-shadow 0.2s;
+  vertical-align: middle;
+}
+
+.pill-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Specific Provider Colors */
+.pill-link.meteo {
+  background: #e3f2fd;
+  /* Light Blue */
+  color: #0d47a1 !important;
+}
+
+/* Premium Gemini Look */
+.pill-link.gemini {
+  background: linear-gradient(135deg, #4285f4, #9b72cb, #d96570, #4285f4);
+  /* Added repeat color */
+  background-size: 300% 300%;
+  color: white !important;
+  padding: 3px 12px;
+  /* Reduced padding */
+  box-shadow: 0 2px 8px rgba(66, 133, 244, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  /* Sparkle/Glow animation if desired, keeping it simple but premium for now */
+  animation: scrollGradient 4s ease infinite;
+}
+
+@keyframes scrollGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.pill-link.gemini:hover {
+  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.6);
+  filter: brightness(1.1);
+}
+
+/* How it works tab */
+.how-it-works-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.3s ease;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.how-it-works-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.how-it-works-content {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 0 0 10px 10px;
+  margin-top: -10px;
+  /* Overlap slightly or connect */
+  padding-top: 10px;
+  /* Space for the button overlap */
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-modal-content label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #058ba0;
+  /* Changed to white */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.auth-modal-content input[type="text"],
+.auth-modal-content input[type="password"],
+.auth-modal-content input[type="email"] {
+  width: calc(100% - 24px);
+  /* Full width minus padding */
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  /* Slightly transparent input background */
+  color: white;
+  font-size: 1em;
+  transition: border-color 0.3s ease;
+}
+
+.auth-modal-content input[type="text"]:focus,
+.auth-modal-content input[type="password"]:focus,
+.auth-modal-content input[type="email"]:focus {
+  border-color: rgba(255, 255, 255, 0.8);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.auth-modal-content input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.auth-modal-content .modal-login-btn {
+  background-color: #0093aa;
+  /* Blue button */
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-top: 15px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+}
+
+.auth-modal-content .modal-login-btn:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+.auth-modal-content .modal-register-text {
+  margin-top: 25px;
+  font-size: 0.95em;
+  color: #e0e0e0;
+}
+
+.auth-modal-content .modal-register-text a {
+  color: #87CEEB;
+  /* Lighter blue for links */
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-modal-content .modal-register-text a:hover {
+  text-decoration: underline;
+}
+
+.modal-overlay {
+  display: none;
+}
+
+.auth-modal-overlay.active {
+  display: flex !important;
+  /* Ensure this override works */
+}
+
+.confirmation-btn {
+  margin: 10px 5px 0 5px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  /* For pseudo-elements */
+  isolation: isolate;
+  /* For z-index of pseudo-elements */
+  color: #1d1d1f;
+  /* Dark text for readability on light glass */
+  text-shadow: 0 1px 2px rgb(255 255 255 / 20%);
+  /* Subtle text shadow */
+  overflow: hidden;
+  /* Ensure pseudo-elements stay within bounds */
+}
+
+/* Base glass styling for all confirmation buttons */
+.confirmation-btn::before,
+.confirmation-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Distortion layer */
+.confirmation-btn::before {
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  filter: url(#glass-distortion);
+  z-index: -1;
+  background-color: rgb(255 255 255 / 25%);
+  /* Default glass background */
+}
+
+/* Shine/Outline layer */
+.confirmation-btn::after {
+  box-shadow:
+    inset 2px 2px 1px 0 rgb(255 255 255 / 50%),
+    inset -1px -1px 1px 1px rgb(255 255 255 / 50%);
+  z-index: 1;
+  /* On top of base background, but below text */
+}
+
+.confirmation-btn:hover::before {
+  background-color: rgb(255 255 255 / 35%);
+  /* Brighten on hover */
+}
+
+.confirmation-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.confirmation-btn.confirm::before {
+  background-color: rgb(40 167 69 / 40%);
+  /* Green tint for confirm */
+}
+
+.confirmation-btn.confirm:hover::before {
+  background-color: rgb(40 167 69 / 55%);
+}
+
+.confirmation-btn.cancel::before {
+  background-color: rgb(0 0 0);
+}
+
+.confirmation-btn.cancel:hover::before {
+  background-color: rgb(220 53 69 / 55%);
+}
+
+
+/* Tutorial Restart Button */
+#tutorialBtn {
+  position: absolute;
+  top: 240px;
+  left: 21px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+  @extend .glass-base;
+  /* Apply glassmorphism */
+}
+
+#tutorialBtn:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(1.1);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+/* Credits Button (Similar style to Tutorial Button) */
+#creditsBtn {
+  position: absolute;
+  top: 285px;
+  /* Positioned below tutorialBtn (240px + 36px + gap) */
+  left: 21px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+  /* Serif font for the 'i' looks nice */
+  font-family: "Times New Roman", Times, serif;
+  font-style: italic;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+  @extend .glass-base;
+}
+
+#creditsBtn:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(1.1);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+
+
+
+/* Circular Progress Loader */
+.ai-loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+}
+
+.circular-progress {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, white 79%, transparent 80% 100%),
+    conic-gradient(#3b82f6 var(--progress, 0%), #e5e7eb 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: --progress 0.1s linear;
+  /* Smooth transition */
+}
+
+.circular-progress::before {
+  content: attr(data-value) '%';
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #374151;
+}
+
+.loading-text {
+  font-size: 2rem;
+  color: #ffff;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+/* Game Container underneath */
+#gameContainer {
+  width: 100%;
+  max-width: 350px;
+  height: 200px;
+  /* Smaller height for the mini-game */
+  margin-top: 10px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* =========================================
+   SPOTAIR BUTTON POSITIONING
+   ========================================= */
+.glass-btn-container {
+  position: fixed;
+  /* DEFAULT STATE: User's requested position */
+  top: 250px;
+  right: 8px;
+
+  z-index: 3000;
+  /* Must be higher than overlay (2000) */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+
+  /* Enable smooth movement animation */
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ACTIVE STATE: Moves to top-right when map is open */
+.glass-btn-container.active-pos {
+  top: 20px;
+  /* Moves up to the corner */
+  right: 20px;
+}
+
+/* =========================================
+   LOGO ANIMATION STYLES
+   ========================================= */
+/* Target the existing ID from your HTML */
+#mapLogoContainer {
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Bouncy smooth transition */
+}
+
+/* The class we will add via JavaScript */
+.centered-logo {
+  position: fixed !important;
+  top: 5% !important;
+  /* Sits nicely in the upper-middle area */
+  left: 50% !important;
+  transform: translate(-50%, -50%) scale(1) !important;
+  /* Centers it and makes it larger */
+
+  z-index: 3001 !important;
+  /* Above the overlay (2000) and button (3000) */
+  pointer-events: none;
+  /* Critical: allows clicking the map THOUGH the logo */
+
+  filter: drop_shadow(0 10px 15px rgba(0, 0, 0, 0.3));
+  /* Nice shadow for depth */
+  opacity: 0.9;
+}
+
+/* =========================================
+   WRAPPER: CONTROLS POSITION ON SCREEN
+   ========================================= */
+.floating-btn-wrapper {
+  position: fixed;
+  top: 250px;
+  /* Top Right Corner */
+  right: 8px;
+  z-index: 10;
+  /* Behind the overlay (2000) */
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* =========================================
+   LIQUID GLASS BUTTONS
+   ========================================= */
+.liquid-button {
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  margin: 0;
+  position: relative;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+
+  transform: translateZ(0);
+  transition: all 0.2s ease-out;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.7);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.liquid-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), transparent);
+  border-radius: 14px 14px 50% 50%;
+  pointer-events: none;
+}
+
+.liquid-button:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15), inset 0 1px 1px #fff;
+}
+
+.liquid-button:active {
+  transform: translateY(1px);
+}
+
+.liquid-button.active {
+  border-color: rgba(239, 68, 68, 0.5);
+  background: rgba(255, 230, 230, 0.9);
+}
+
+/* =========================================
+   TEXT & LABELS
+   ========================================= */
+#btnContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.btn-text-view {
+  font-size: 9px;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: 2px;
+}
+
+/* === TOS Checkbox Fix === */
+.tos-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  /* Align left */
+  margin: 15px 0;
+  text-align: left;
+}
+
+.tos-container input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  cursor: pointer;
+  accent-color: #058ba0;
+  opacity: 1 !important;
+  /* Force visibility */
+  display: inline-block !important;
+  /* Force display */
+  position: static !important;
+  /* Reset positioning constraints */
+  z-index: 10;
+}
+
+.tos-container label {
+  font-size: 0.95em;
+  cursor: pointer;
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  line-height: 1.4;
+}
+
+.tos-container a {
+  color: #87CEEB !important;
+  text-decoration: underline;
+}
+
+
+.btn-text-live {
+  font-size: 10px;
+  font-weight: 900;
+  color: #ef4444;
+}
+
+.glass-btn-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #333;
+  text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 1);
+  background: rgba(255, 255, 255, 0.6);
+  padding: 2px 5px;
+  border-radius: 4px;
+  margin-top: 6px;
+  backdrop-filter: blur(4px);
+}
+
+/* =========================================
+   ANIMATIONS
+   ========================================= */
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #ef4444;
+  border-radius: 50%;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  box-shadow: 0 0 5px #ef4444;
+  animation: pulse-red 1.5s infinite;
+}
+
+@keyframes pulse-red {
+  0% {
+    transform: scale(0.95);
+    opacity: 1;
+  }
+
+  70% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+/* =========================================
+   PANELS & OVERLAYS
+   ========================================= */
+.spotair-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  /* Z-Index Hierarchy: Button is 10, Overlay is 2000 */
+  z-index: 2000;
+  transform: translateY(100%);
+  will-change: transform;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.spotair-overlay.visible {
+  transform: translateY(0);
+}
+
+/* Quick style for the email section */
+#email-report-container {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.email-input-group {
+  display: flex;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+#recipient-email {
+  flex: 1;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+#btn-send-email {
+  padding: 8px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#btn-send-email:disabled {
+  background-color: #6c757d;
+}
+
+#email-status-msg {
+  font-size: 0.85em;
+  margin-top: 5px;
+  min-height: 1.2em;
+}
+
+/* Tutorial Overlay Styles */
+.tutorial-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  /* Dark semi-transparent background */
+  backdrop-filter: blur(5px);
+  z-index: 22000;
+  /* Ensure it's on top of everything including settings panel (10004) */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s ease;
+}
+
+.tutorial-modal {
+  /* Reverted to Dark Style - Removed backdrop-filter for performance */
+  background-color: rgba(30, 30, 30, 1);
+  /* backdrop-filter: blur(10px); REMOVED CAUSES LAG */
+  /* -webkit-backdrop-filter: blur(10px); REMOVED CAUSES LAG */
+
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+
+  /* Responsive Sizing */
+  max-width: 300px;
+  width: 65vw;
+  /* Changed from 85vw to 65vw */
+
+  color: white;
+  position: absolute;
+  z-index: 23000;
+  /* Increased to sit above highlights (10006) */
+  transition: top 1.2s cubic-bezier(0.23, 1, 0.32, 1),
+    left 1.2s cubic-bezier(0.23, 1, 0.32, 1),
+    transform 1.2s cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 1.2s ease;
+  will-change: top, left, transform;
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+}
+
+.tutorial-modal.visible {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+/* Helper class for centering (when no specific element is targeted) */
+.tutorial-modal.centered {
+  top: 80% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) scale(1) !important;
+}
+
+.tutorial-modal h2 {
+  margin-top: 0;
+  font-size: 20px;
+  color: #ffffff;
+  /* Dark text -> White */
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  /* Restored heavy shadow */
+}
+
+.tutorial-modal p {
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 25px;
+  color: #ffffff;
+  /* Softer dark grey -> White */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  /* Restored shadow */
+}
+
+.tutorial-navigation {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.tutorial-btn {
+  padding: 10px 24px;
+  /* Slightly wider */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  /* Match ai button radius */
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+
+  /* Match AI Button Style */
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.6), rgba(59, 130, 246, 0.6));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: white;
+
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.tutorial-btn:hover {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.8), rgba(59, 130, 246, 0.8));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35), 0 0 10px rgba(59, 130, 246, 0.5);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.tutorial-btn.secondary {
+  /* Glassy Grey for Secondary */
+  background: rgba(100, 116, 139, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.tutorial-btn.secondary:hover {
+  background: rgba(100, 116, 139, 0.7);
+}
+
+/* Container for the checkbox and label */
+.tos-container {
+  display: flex;
+  align-items: flex-start;
+  /* Align to top */
+  text-align: left;
+  gap: 10px;
+  /* Space between checkbox and text */
+  margin-top: 15px;
+  /* Space above */
+  margin-bottom: 15px;
+  /* Space below */
+}
+
+/* Style for the checkbox itself */
+.tos-container input[type="checkbox"] {
+  margin-top: 4px;
+  /* Align with first line of text */
+  flex-shrink: 0;
+  /* Don't let it shrink */
+  width: auto;
+  /* Override width: 100% from inputs */
+}
+
+/* Style for the label text */
+.tos-container label {
+  font-size: 0.9em;
+  color: #eee;
+  /* Lighter text for dark modal or adjust for light modal */
+  margin-bottom: 0;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Since modal is white/glassy, let's use dark text color by default, or inherit */
+.auth-modal-content .tos-container label {
+  color: #eee;
+  /* Wait, modal text is white? No, modal background is white 0.2 */
+}
+
+/* Let's check modal text color. It's white in index.html usually? */
+/* The auth-modal-content has p { color: #e0e0e0; } which is light grey (for dark background). */
+/* Wait, auth-modal-content background is rgba(255, 255, 255, 0.2). */
+/* That is LIGHT. Text should be DARK. */
+/* But in index.html I see p { color: #e0e0e0; } inside auth-modal-content CSS in style.css? */
+/* Let's check style.css content again for .auth-modal-content color */
+
+/* Style for the links inside the label */
+.tos-container label a {
+  color: #87CEEB;
+  /* Lighter blue for links */
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.tos-container label a:hover {
+  text-decoration: underline;
+}
+
+.tutorial-highlight {
+  position: relative;
+  /* This was the bug for buttons */
+  z-index: 22001 !important;
+  /* Above overlay */
+  box-shadow: 0 0 0 5px rgba(0, 123, 255, 0.5), 0 0 15px rgba(0, 123, 255, 0.8);
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  /* Match button/panel radius where applicable */
+}
+
+/* Rainbow Glow for AI Tutorial Step */
+@keyframes rainbow-glow {
+  0% {
+    box-shadow: 0 0 10px #ff0000, 0 0 10px #ff0000;
+  }
+
+  20% {
+    box-shadow: 0 0 10px #ffbf00, 0 0 10px #ffbf00;
+  }
+
+  40% {
+    box-shadow: 0 0 10px #80ff00, 0 0 10px #80ff00;
+  }
+
+  60% {
+    box-shadow: 0 0 10px #00ff40, 0 0 10px #00ff40;
+  }
+
+  80% {
+    box-shadow: 0 0 10px #00ffff, 0 0 10px #00ffff;
+  }
+
+  100% {
+    box-shadow: 0 0 10px #ff00ff, 0 0 10px #ff00ff;
+  }
+}
+
+.tutorial-highlight.rainbow-glow {
+  animation: rainbow-glow 2s linear infinite !important;
+  z-index: 22002 !important;
+  /* Ensure it pops above everything */
+  border: 2px solid white;
+}
+
+.tutorial-tooltip {
+  position: absolute;
+  background-color: #333;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 14px;
+  max-width: 250px;
+  text-align: left;
+  z-index: 10002;
+  /* Above highlight */
+  pointer-events: none;
+  /* Allows clicks to pass through to the underlying element if needed */
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.tutorial-tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tutorial-tooltip::after {
+  content: '';
+  position: absolute;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Rainbow Button Class for New Users */
+.rainbow-button {
+  animation: rainbow-glow 2s linear infinite !important;
+  border-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Email Report Container */
+.email-report-container {
+  background: rgba(255, 255, 255, 0.08);
+  /* Subtle glass background */
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.email-report-container:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.email-title {
+  font-size: 0.95em;
+  margin: 0 0 10px 0;
+  color: #e2e8f0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.email-options {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.email-option-label {
+  cursor: pointer;
+  font-size: 0.85em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #cbd5e1;
+  transition: color 0.2s;
+  user-select: none;
+}
+
+.email-option-label:hover {
+  color: #fff;
+}
+
+.email-option-label input[type="radio"] {
+  accent-color: #3b82f6;
+  /* Tailwind blue-500 equivalent */
+  transform: scale(1.1);
+}
+
+.email-input-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.recipient-email-input {
+  flex: 1;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: white;
+  font-size: 0.9em;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.recipient-email-input:focus {
+  border-color: #3b82f6;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.recipient-email-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-send-email {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  /* Green gradient */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9em;
+  transition: transform 0.1s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+
+.btn-send-email:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.1);
+}
+
+.btn-send-email:active {
+  transform: translateY(0);
+}
+
+.btn-send-email:disabled {
+  background: #64748b;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.email-status-msg {
+  font-size: 0.85em;
+  margin-top: 6px;
+  min-height: 1.25em;
+  color: #94a3b8;
+  text-align: right;
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  70% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.analyze-anim {
+  animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  transform-origin: center;
+}
+
+/* Anti-Gravity Modal Animation Styles */
+
+.antigravity-modal {
+  background: radial-gradient(circle at center, #1a233a 0%, #0d1117 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+  overflow: hidden;
+  padding-bottom: 30px !important;
+  max-width: 320px !important;
+  /* Tighten from the sides */
+}
+
+.antigravity-scene {
+  position: relative;
+  height: 120px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+  perspective: 1000px;
+}
+
+.gravity-core {
+  width: 20px;
+  height: 20px;
+  background: #a9adc1;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 0 20px rgba(169, 173, 193, 0.6);
+  animation: gravityHover 3s ease-in-out infinite;
+  z-index: 10;
+  margin-top: -20px;
+  /* Slight offset up */
+}
+
+/* Optional: Inner glow or structure for the core */
+.gravity-core::after {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 20%;
+  width: 60%;
+  height: 60%;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  filter: blur(2px);
+}
+
+.gravity-ripple {
+  position: absolute;
+  bottom: 20px;
+  /* Adjust based on scene height */
+  left: 50%;
+  transform: translateX(-50%) rotateX(60deg);
+  width: 60px;
+  height: 60px;
+  border: 1px solid rgba(169, 173, 193, 0.3);
+  border-radius: 50%;
+  opacity: 0;
+  box-shadow: 0 0 10px rgba(169, 173, 193, 0.2);
+  animation: gravityRipple 3s linear infinite;
+}
+
+.gravity-ripple.r1 {
+  animation-delay: 0s;
+}
+
+.gravity-ripple.r2 {
+  animation-delay: 1s;
+}
+
+.gravity-ripple.r3 {
+  animation-delay: 2s;
+}
+
+@keyframes gravityHover {
+
+  0%,
+  100% {
+    transform: rotate(-45deg) translateY(0);
+  }
+
+  50% {
+    transform: rotate(-45deg) translateY(-15px);
+  }
+}
+
+@keyframes gravityRipple {
+  0% {
+    width: 20px;
+    height: 20px;
+    opacity: 0.8;
+    border-color: rgba(169, 173, 193, 0.5);
+  }
+
+  100% {
+    width: 140px;
+    height: 140px;
+    opacity: 0;
+    border-color: rgba(169, 173, 193, 0);
+  }
+}
+
+/* === Profile Modal Restored Styles === */
+h1.profile-section-title {
+  color: #007BFF;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  font-size: 1.6em;
+  /* Slightly smaller for modal */
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+.history-split {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.history-column {
+  flex: 1;
+  min-width: 250px;
+}
+
+.history-list-container {
+  margin-bottom: 20px;
+}
+
+.transactions-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  /* Scrollable history within modal */
+}
+
+.transactions-list li {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  padding: 10px 15px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  text-align: left;
+  font-size: 0.9em;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.transactions-list li span.timestamp {
+  font-weight: bold;
+  color: #666;
+  font-size: 0.85em;
+}
+
+.transactions-list li span.description {
+  color: #555;
+  word-break: break-word;
+}
+
+.transactions-list li span.amount {
+  font-weight: bold;
+  font-size: 1em;
+}
+
+.transactions-list li span.amount.positive {
+  color: #28a745;
+}
+
+.transactions-list li span.amount.negative {
+  color: #dc3545;
+}
+
+/* Flash message styling */
+#flash-messages {
+  margin-bottom: 20px;
+}
+
+.flash-message {
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  text-align: left;
+  font-size: 0.9em;
+  font-weight: 500;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  opacity: 1;
+  transition: opacity 0.5s ease-out;
+}
+
+.flash-message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.flash-message.danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.flash-message.info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+/* Daily Interpreter Styles adjustments for modal */
+.daily-interpreter-section {
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+/* === Feature Updates === */
+/* Hide reports initially */
+.hidden-report {
+  display: none !important;
+}
+
+/* Show More Button */
+#show-more-reports-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #555;
+  transition: background 0.2s;
+}
+
+#show-more-reports-btn:hover {
+  background: #e0e0e0;
+}
+
+/* Remove underlines from action buttons in profile modal */
+.profile-container .actions a {
+  text-decoration: none;
+}
+
+.profile-container .actions a:hover {
+  text-decoration: none;
+}
+
+/* === XcPerfect Feature === */
+h1.xc-perfect-title {
+  color: #007BFF !important;
+  font-size: 2em;
+  margin: 0;
+}
+
+/* Info Tooltip */
+.info-tooltip-container {
+  position: relative;
+  display: inline-block;
+  margin-left: 10px;
+  cursor: help;
+}
+
+.info-tooltip-text {
+  visibility: hidden;
+  width: 200px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1001;
+  bottom: 125%;
+  /* Position above */
+  left: 50%;
+  margin-left: -125px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.6em;
+  font-weight: normal;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.info-tooltip-container:hover .info-tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Arrows for tooltip */
+.info-tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+/* Heartbeat Frame */
+@keyframes heartbeat-pulse {
+  0% {
+    box-shadow: inset 0 0 0 0px rgba(5, 139, 160, 0.7);
+  }
+
+  50% {
+    box-shadow: inset 0 0 20px 10px rgba(5, 139, 160, 0.4);
+  }
+
+  100% {
+    box-shadow: inset 0 0 0 0px rgba(5, 139, 160, 0);
+  }
+}
+
+.heartbeat-frame {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  /* Let clicks pass through to map */
+  z-index: 9999;
+  animation: heartbeat-pulse 1.5s infinite;
+  border: 5px solid rgba(5, 139, 160, 0.3);
+  /* Base border */
+}
+
+.cursor-crosshair {
+  cursor: crosshair !important;
+}
+
+/* === User Profile Details (Modal) === */
+.profile-user-details {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  color: #000000 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.profile-user-details p {
+  margin: 5px 0;
+  font-size: 0.95em;
+  color: #000000 !important;
+}
+
+.profile-user-details strong {
+  color: #000000 !important;
+  font-weight: 600;
+}
+
+/* === Image Modal (Enlarged Forecast) === */
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 2147483647;
+  /* MAX INT Z-Index to guarantee top layer */
+  display: flex !important;
+  /* Force flex when not hidden */
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  opacity: 1;
+  /* Ensure simple visibility */
+  transition: opacity 0.2s ease;
+}
+
+.image-modal.hidden {
+  display: none !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#modalImage {
+  max-width: 95%;
+  max-height: 95%;
+  border-radius: 8px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
+  object-fit: contain;
+  /* animation removed for stability */
+  transform: scale(1);
+  opacity: 1;
+}
+
+#modalClose {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s;
+  z-index: 20001;
+}
+
+#modalClose:hover {
+  color: #bbb;
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}/* === Social Login Styles === */
+.social-login {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.social-login .divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #e0e0e0;
+    font-size: 0.9em;
+    margin: 10px 0;
+}
+
+.social-login .divider::before,
+.social-login .divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.social-login .divider span {
+    padding: 0 10px;
+}
+
+.social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.95em;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.social-btn img {
+    width: 20px;
+    height: 20px;
+}
+
+.social-btn.google-btn {
+    background-color: #ffffff;
+    color: #333;
+}
+
+.social-btn.google-btn:hover {
+    background-color: #f1f1f1;
+}
+
+.social-btn.apple-btn {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.social-btn.apple-btn:hover {
+    background-color: #1a1a1a;
+}
