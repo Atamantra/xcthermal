@@ -1,4 +1,7 @@
 __pycache__/
 *.pyc
+.env
+.env.local
+.env.*.local
 xcthermal.env
 .DS_Store
