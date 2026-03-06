@@ -9,7 +9,7 @@ import time
 import io
 import base64 # <--- ADDED: Required for image attachment
 from PIL import Image
-import google.generativeai as genai
+from google import genai
 from geopy.distance import geodesic
 from datetime import datetime, timezone, timedelta
 from astral import LocationInfo
@@ -39,8 +39,8 @@ import markdown # <--- ADDED: Markdown Support
 import stripe # <--- ADDED: Stripe Support
 
 # --- BREVO IMPORTS (ADDED) ---
-import brevo
-from brevo.rest import ApiException
+import brevo_python as brevo
+from brevo_python.rest import ApiException
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, 'xcthermal.env'))
