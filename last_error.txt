@@ -1,0 +1,6 @@
+CRASH in manage_settings: 'User' object has no attribute 'daily_auto_route'
+Traceback (most recent call last):
+  File "/Users/ataberkdoganli/Desktop/xc/v1.1a/app.py", line 789, in manage_settings
+    'dailyAutoRoute': current_user.daily_auto_route
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'daily_auto_route'

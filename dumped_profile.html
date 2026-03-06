@@ -1,0 +1,387 @@
+<div class="profile-container auth-modal-content" style="max-height: 85vh; overflow-y: auto; max-width: 800px; width: 90%;">
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h1 style="margin: 0; font-size: 2em; color: #007BFF;">{{ current_user.username }}</h1>
+                <button class="close-btn" onclick="closeProfileModal()" style="color: #333; font-size: 2em; background:none; border:none; cursor:pointer;">×</button>
+            </div>
+
+
+
+            <!-- Flash Messages -->
+            <div id="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+
+            <div class="profile-user-details">
+                <p>Email: <strong>{{ current_user.email }}</strong></p>
+                <p>Credits: <strong>{{ current_user.credits }}</strong></p>
+                <p>Joined: <strong>{{ current_user.created_at.strftime('%Y-%m-%d') if current_user.created_at else
+                        'Unknown' }}</strong></p>
+                <p>Total flight hour: <strong>{% if current_user.total_flight_time %}{{ current_user.total_flight_time
+                        // 60 }} h {{ current_user.total_flight_time % 60 }} minutes{% else %}0 h 0 minutes{% endif
+                        %}</strong></p>
+            </div>
+
+            <div class="actions" style="margin: 20px 0; text-align: center;">
+                <a href="#" class="modal-login-btn" onclick="closeProfileModal(); document.getElementById('addCreditsModalOverlay').classList.add('active'); return false;">Add
+                    Credits</a>
+                <a href="/logout" class="modal-login-btn" style="background: #dc3545; margin-left: 10px;">Logout</a>
+            </div>
+
+            <!-- Daily Interpreter Section (Moved) -->
+            <!-- Flight Log Section -->
+            <div class="flight-log-section" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2 style="margin: 0;">Flight Logs</h2>
+                    <input type="file" id="profileFlightUploadInput" accept=".igc" style="display: none;">
+                    <button id="profileUploadBtn" class="modal-login-btn" style="background: #28a745; font-size: 0.9em; padding: 8px 15px;">
+                        + Upload Flight
+                    </button>
+                </div>
+
+                <div class="flight-list-container" style="max-height: 300px; overflow-y: auto;">
+                    <table class="flight-table" style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Location</th>
+                                <th>Duration</th>
+                                <th>Dist (km)</th>
+                                <th>Gain (m)</th>
+                                <th style="text-align: center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="flightListBody">
+                            <tr>
+                                <td class="flight-date">2020-08-13</td>
+                                <td class="flight-location">
+                                    <div class="flight-point">
+                                        <span class="flight-icon takeoff" title="Takeoff">🛫</span>
+                                        <span class="time-label">10:34:31</span>
+                                        <span class="location-name" title="Çal">Çal</span>
+                                    </div>
+                                    <div class="flight-point">
+                                        <span class="flight-icon landing" title="Landing">🛬</span>
+                                        <span class="time-label">14:08:32</span>
+                                        <span class="location-name" title="Orhanlı">Orhanlı</span>
+                                    </div>
+                                </td>
+                                <td class="flight-data-mono">3h 34m</td>
+                                <td class="flight-data-mono flight-dist-glow">135.2</td>
+                                <td class="flight-data-mono">2326</td>
+                                <td class="flight-actions">
+                                    <button class="btn-icon-action btn-open-flight" data-id="1" title="View on Map">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-icon-action btn-delete-flight" data-id="1" title="Delete Flight">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="flight-date">2020-08-07</td>
+                                <td class="flight-location">
+                                    <div class="flight-point">
+                                        <span class="flight-icon takeoff" title="Takeoff">🛫</span>
+                                        <span class="time-label">09:10:32</span>
+                                        <span class="location-name" title="Çal">Çal</span>
+                                    </div>
+                                    <div class="flight-point">
+                                        <span class="flight-icon landing" title="Landing">🛬</span>
+                                        <span class="time-label">12:16:05</span>
+                                        <span class="location-name" title="Belence">Belence</span>
+                                    </div>
+                                </td>
+                                <td class="flight-data-mono">3h 5m</td>
+                                <td class="flight-data-mono flight-dist-glow">125.6</td>
+                                <td class="flight-data-mono">2811</td>
+                                <td class="flight-actions">
+                                    <button class="btn-icon-action btn-open-flight" data-id="2" title="View on Map">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-icon-action btn-delete-flight" data-id="2" title="Delete Flight">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- XcPerfect Section -->
+            <!-- Daily Interpreter Section (Redesigned) -->
+            <!-- Daily Interpreter Section (Redesigned) -->
+            <div class="daily-interpreter-section">
+                <div class="section-header">
+                    <h2>
+                        XcPerfect Alert
+                        <div class="info-tooltip-container">
+                            <span style="font-size: 0.6em; color: #058ba0; cursor: help; vertical-align: super;">?</span>
+                            <div class="info-tooltip-text">
+                                <strong>Automatic Daily Interpreter:</strong><br>
+                                Sends you an email when the weather conditions are:<br>
+                                1. <strong>Suitable for flight</strong> (based on your takeoff face preference).<br>
+                                2. <strong>Good for XC</strong> (meets your minimum km requirement).<br>
+                                3. <strong>Draws automatic XC route</strong> (Demo/Beta mode).
+                            </div>
+                        </div>
+                    </h2>
+                </div>
+
+                <div id="info-content" class="info-content" style="display: none;">
+                    <strong>Automatic Daily Interpreter:</strong><br>
+                    Sends you an email when the weather conditions are:<br>
+                    1. <strong>Suitable for flight</strong> (based on your takeoff face preference).<br>
+                    2. <strong>Good for XC</strong> (meets your minimum km requirement).<br>
+                    3. <strong>Draws automatic XC route</strong> (Demo/Beta mode).
+                </div>
+
+                <form id="daily-interpreter-form">
+                    <div class="toggle-wrapper">
+                        <label class="switch">
+                            <input type="checkbox" id="dailyEmailEnabled">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-label">Send me an email if weather is XC Perfect!</span>
+                    </div>
+
+                    <div class="interpreter-settings" style="display: none;">
+
+                        <!-- Location Selection Hook -->
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label style="margin-bottom: 10px;">Select Location for Analysis:</label>
+                            <button type="button" id="select-from-map-btn" style="width: 100%; padding: 12px; background: #058ba0; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s;">
+                                Select from Map
+                            </button>
+                            <button id="stripeCheckoutBtn" class="modal-login-btn action-btn">
+                                <span class="btn-text">Pay with Stripe</span>
+                            </button>
+                        </div>
+
+                        <div style="margin-top:20px; font-size: 0.85em; color:#fff;">
+                            🔒 <span id="t_securePayment">Secure payment via Stripe</span><br>
+                            <div style="margin-top: 10px; padding: 10px; background: rgba(0, 123, 255, 0.1); border-radius: 8px;">
+                                🤖 <strong id="t_conversionRate">1 CREDIT ≈ 1 AI INTERPRETATION</strong>
+                            </div>
+                        </div>
+
+                        <!-- Display Saved Location if exists -->
+                        <div id="saved-xc-location" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #eee; display: none;">
+                            <div style="font-weight: bold; color: #058ba0; font-size: 0.9em; margin-bottom: 5px;">
+                                Saved Location:</div>
+                            <div style="display: flex; gap: 15px; font-size: 0.85em; color: #555;">
+                                <span>Lat: <span id="dispXcLat">None</span></span>
+                                <span>Lon: <span id="dispXcLon">None</span></span>
+                                <span>Alt: <span id="dispXcAsl">None</span>m</span>
+                            </div>
+                        </div>
+
+                        <!-- Hidden inputs for logic (pre-filled with saved data) -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px;">
+                            <div>
+                                <label style="font-size: 0.8em;">Lat</label>
+                                <input type="number" id="xcLat" step="any" placeholder="Lat" class="form-control" style="padding: 8px;" value="">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.8em;">Lon</label>
+                                <input type="number" id="xcLon" step="any" placeholder="Lon" class="form-control" style="padding: 8px;" value="">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.8em;">Alt (m)</label>
+                                <input type="number" id="xcAsl" step="any" placeholder="Alt" class="form-control" style="padding: 8px;" value="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-grid">
+                        <div class="form-group">
+                            <label for="dailyTakeoffDirections">Preferred Takeoff Face</label>
+                            <select id="dailyTakeoffDirections" class="form-control">
+                                <option value="" selected="">Any
+                                </option>
+                                <option value="N">N
+                                </option>
+                                <option value="NE">
+                                    NE</option>
+                                <option value="E">E
+                                </option>
+                                <option value="SE">
+                                    SE</option>
+                                <option value="S">S
+                                </option>
+                                <option value="SW">
+                                    SW</option>
+                                <option value="W">W
+                                </option>
+                                <option value="NW">
+                                    NW</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dailyAiStyle">Daily Alert Style</label>
+                            <select id="dailyAiStyle" class="form-control">
+                                <option value="basic">Basic
+                                </option>
+                                <option value="pilot">Pilot
+                                </option>
+                                <option value="xc">XC
+                                </option>
+                                <option value="tandem">
+                                    Tandem Pilot</option>
+                                <option value="expert">
+                                    Expert Level</option>
+                                <option value="speed">Speed
+                                    Flight</option>
+                                <option value="acro">Acro
+                                    Flight</option>
+                                <option value="ridge">Ridge
+                                    Soaring</option>
+                                <option value="xcperfect" selected="">XcPerfect Alert</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <label for="dailyMinXcInput">Min XC Distance <span id="minXcUnitLabel">(km)</span></label>
+                                <label class="switch" style="transform: scale(0.8); margin: 0;">
+                                    <input type="checkbox" id="dailyMinXcToggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <input type="number" id="dailyMinXcInput" class="form-control" data-original-km="" placeholder="" disabled="">
+                        </div>
+                    </div>
+
+                    <div class="auto-route-group">
+                        <input type="checkbox" id="dailyAutoRoute">
+                        <label for="dailyAutoRoute" style="margin:0; cursor:pointer;">Draw automatic XC route
+                            (Demo)</label>
+                    </div>
+
+                    <button type="button" id="save-daily" class="save-btn">Save Preferences</button>
+                    <span id="save-status" style="opacity: 0; transition: opacity 0.5s;">Saved
+                        Successfully!</span>
+                </form>
+            </div>
+
+            <script>
+                // XcPerfect Map Selection Logic
+                document.getElementById('select-from-map-btn').addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (!window.currentMap) {
+                        alert('Map not initialized yet.');
+                        return;
+                    }
+
+                    // Hide modal
+                    document.getElementById('profileModalOverlay').classList.remove('active');
+
+                    // Add heartbeat frame
+                    const frame = document.createElement('div');
+                    frame.className = 'heartbeat-frame';
+                    document.body.appendChild(frame);
+                    document.body.classList.add('cursor-crosshair');
+
+                    // Disable normal map click
+                    if (typeof window.isXcPerfectSelecting !== 'undefined') {
+                        window.isXcPerfectSelecting = true;
+                    }
+
+                    // Mapbox GL click listener
+                    window.currentMap.once('click', async function (evt) {
+                        const { lng, lat } = evt.lngLat;
+
+                        // Try to get elevation (async via API)
+                        let elevation = 0;
+                        if (window.fetchAltitude) {
+                            const fetchedAlt = await window.fetchAltitude(lat, lng);
+                            if (fetchedAlt !== null) elevation = fetchedAlt;
+                        }
+
+                        // Show Confirmation
+                        if (window.showXcPerfectConfirm) {
+                            window.showXcPerfectConfirm((confirmed) => {
+                                frame.remove();
+                                document.body.classList.remove('cursor-crosshair');
+                                document.getElementById('profileModalOverlay').classList.add('active');
+
+                                if (confirmed) {
+                                    document.getElementById('xcLat').value = lat.toFixed(5);
+                                    document.getElementById('xcLon').value = lng.toFixed(5);
+                                    document.getElementById('xcAsl').value = Math.round(elevation);
+                                }
+                            });
+                        } else {
+                            // Fallback if not loaded
+                            document.getElementById('xcLat').value = lat.toFixed(5);
+                            document.getElementById('xcLon').value = lng.toFixed(5);
+                            document.getElementById('xcAsl').value = Math.round(elevation);
+                            frame.remove();
+                            document.body.classList.remove('cursor-crosshair');
+                            document.getElementById('profileModalOverlay').classList.add('active');
+                        }
+
+                        // Re-enable normal map click
+                        if (typeof window.isXcPerfectSelecting !== 'undefined') {
+                            window.isXcPerfectSelecting = false;
+                        }
+                    });
+                });
+            </script>
+
+            <!-- AI Reports -->
+            <h1 class="profile-section-title" id="t_aiReports">AI Reports</h1>
+            <div class="history-list-container">
+
+                <p class="no-reports-text">No AI reports generated yet.</p>
+
+            </div>
+
+            <!-- Split History -->
+            <div class="history-split">
+                <div class="history-column">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0;">
+                        <h1 class="profile-section-title" style="margin-bottom: 0;">Purchases</h1>
+                        <button class="add-credits-btn-profile" style="padding: 5px 10px; font-size: 0.8em; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;" onclick="try{closeProfileModal();}catch(e){} document.getElementById('addCreditsModalOverlay').classList.add('active');">
+                            + Add Credits
+                        </button>
+                    </div>
+                    <div class="history-list-container">
+
+                        <p style="color: #666;">No transactions yet.</p>
+
+                    </div>
+                </div>
+                <!-- Interpretations -->
+                <div class="history-column">
+                    <h1 class="profile-section-title">Interpretations</h1>
+                    <div class="history-list-container">
+
+                        <p style="color: #666;">No transactions yet.</p>
+
+                    </div>
+                </div>
+            </div>
+        </div>

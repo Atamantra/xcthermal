@@ -1,0 +1,8 @@
+[2026-03-07 00:00:32 +0300] [8625] [INFO] Starting gunicorn 25.1.0
+[2026-03-07 00:00:32 +0300] [8625] [INFO] Listening at: http://0.0.0.0:5001 (8625)
+[2026-03-07 00:00:32 +0300] [8625] [INFO] Using worker: sync
+[2026-03-07 00:00:32 +0300] [8625] [INFO] Control socket listening at /Users/atamantra/desktop/xcthermal-home/v1.1a/gunicorn.ctl
+[2026-03-07 00:00:32 +0300] [8627] [INFO] Booting worker with pid: 8627
+[2026-03-07 00:00:32 +0300] [8628] [INFO] Booting worker with pid: 8628
+[2026-03-07 00:00:32 +0300] [8629] [INFO] Booting worker with pid: 8629
+[2026-03-07 00:00:32 +0300] [8630] [INFO] Booting worker with pid: 8630

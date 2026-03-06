@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Credits - XC Thermal</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}?v=6" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}?v=6">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}?v=6">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}?v=6">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Styling consistent with other auth/profile pages */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        .auth-container {
+            /* Reusing auth-container name for consistent styling */
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .auth-container h1 {
+            color: #007BFF;
+            margin-bottom: 25px;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .auth-container p {
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            color: #444;
+        }
+
+        .auth-container strong {
+            color: #007BFF;
+        }
+
+        .auth-container form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .auth-container label {
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .auth-container input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .auth-container input[type="number"]:focus {
+            border-color: #007BFF;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        .auth-container input[type="submit"] {
+            background-color: #28a745;
+            /* Green for adding credits */
+            color: white;
+            padding: 14px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
+        }
+
+        .auth-container input[type="submit"]:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .auth-container .back-link {
+            display: inline-block;
+            margin-top: 25px;
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: 600;
+            transition: text-decoration 0.3s ease;
+        }
+
+        .auth-container .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Flash message styling (consistent with other templates) */
+        #flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash-message {
+            padding: 12px 18px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.95em;
+            font-weight: 500;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .flash-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .flash-message.danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .flash-message.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <h1>Add Credits</h1>
+        <div id="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
+        <p>Your current credits: <strong>{{ current_user.credits }}</strong></p>
+        <form method="POST" action="{{ url_for('add_credits') }}">
+            <label for="amount">Amount to add:</label>
+            <input type="number" id="amount" name="amount" min="1" value="10" required>
+            <input type="submit" value="Add Credits">
+        </form>
+        <a href="{{ url_for('profile') }}" class="back-link">Back to Profile</a>
+    </div>
+    <script>
+        // JavaScript for flash messages fade-out
+        document.addEventListener('DOMContentLoaded', () => {
+            const flashMessagesContainer = document.getElementById('flash-messages');
+            if (flashMessagesContainer) {
+                const messages = flashMessagesContainer.querySelectorAll('.flash-message');
+                messages.forEach(msg => {
+                    setTimeout(() => {
+                        msg.style.opacity = '0';
+                        msg.style.transition = 'opacity 0.5s ease-out';
+                        setTimeout(() => msg.remove(), 500); // Remove after transition
+                    }, 5000); // Fade out after 5 seconds
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

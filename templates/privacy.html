@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - XcThermal</title>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}?v=6" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}?v=6">
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}?v=6">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}?v=6">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body {
+      background-color: #f4f4f9;
+      color: #333;
+      line-height: 1.6;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-y: auto;
+      /* Allow scrolling */
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 40px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #0056b3;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      color: #333;
+      margin-top: 30px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+
+    h3 {
+      margin-top: 20px;
+      color: #555;
+    }
+
+    p,
+    li {
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+
+    ul {
+      margin-left: 20px;
+    }
+
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <nav class="main-nav">
+      <a href="/">Home</a>
+      {% if current_user.is_authenticated %}
+      <span class="user-info">
+        Welcome, <span class="username">{{ current_user.username }}</span>!
+        (Credits: <span id="userCreditsSpan" class="credits">{{ current_user.credits }}</span>)
+      </span>
+      <a href="#" id="navProfileBtn">Profile</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+      {% else %}
+      <a href="#" id="navLoginBtn">Login</a>
+      <a href="#" id="navRegisterBtn">Register</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <div id="mapLogoContainer">
+    <a href="/" id="mapLogoLink">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="XC Thermal Logo" id="mapLogo" />
+    </a>
+  </div>
+
+  <div class="container">
+
+    <h1>Privacy Policy</h1>
+    <p><strong>Last Updated: December 6, 2025</strong></p>
+
+    <p>Welcome to XcThermal ("we," "our," or "us"). We are committed to protecting your privacy and ensuring you
+      understand how your information is collected, used, and shared when you use our web application and services
+      (collectively, the "Service").</p>
+
+    <h2>1. Information We Collect</h2>
+
+    <h3>1.1. Information You Provide to Us</h3>
+    <ul>
+      <li><strong>Account Information:</strong> When you register, we collect your username, email address, and a hashed
+        password.</li>
+      <li><strong>User Content:</strong> We collect settings preferences (e.g., units, language, map style) and any
+        feedback you provide.</li>
+      <li><strong>Communications:</strong> If you contact us via email, we may collect your name, email address, and the
+        content of your message.</li>
+    </ul>
+
+    <h3>1.2. Information We Collect Automatically</h3>
+    <ul>
+      <li><strong>Location Data:</strong> To provide our core thermal map and weather analysis services, we collect and
+        process geolocation data (latitude, longitude, and altitude) when you interact with the map or use the "Locate
+        Me" feature.</li>
+      <li><strong>Usage Data:</strong> We collect information about your interactions with the Service, such as the
+        features you use, the frequency of your visits, and your IP address.</li>
+      <li><strong>Device Information:</strong> We may collect information about the device and browser you use to access
+        the Service.</li>
+    </ul>
+
+    <h2>2. How We Use Your Information</h2>
+    <p>We use the collected information for the following purposes:</p>
+    <ul>
+      <li>To provide, maintain, and improve the Service (e.g., generating thermal maps and AI weather interpretations).
+      </li>
+      <li>To personalize your experience, such as saving your map preferences and flight settings.</li>
+      <li>To communicate with you regarding your account, updates, security alerts, and support messages.</li>
+      <li>To monitor and analyze trends, usage, and activities in connection with our Service.</li>
+      <li>To detect, prevent, and address technical issues and fraudulent activities.</li>
+    </ul>
+
+    <h2>3. Sharing of Information</h2>
+    <p>We do not sell your personal data. We may share your information with third parties only in the following
+      circumstances:</p>
+    <ul>
+      <li><strong>Service Providers:</strong> We share data with third-party vendors who help us operate the Service,
+        including:
+        <ul>
+          <li><strong>Meteoblue & Open-Meteo:</strong> For weather data and meteograms (Location coordinates are sent to
+            these APIs).</li>
+          <li><strong>Google Gemini (AI):</strong> For generating weather interpretations (Location and weather data
+            summaries are processed by this AI).</li>
+          <li><strong>Mapbox:</strong> For map tiles and geocoding services.</li>
+          <li><strong>Brevo (formerly Sendinblue):</strong> For sending transactional emails (e.g., password resets,
+            reports).</li>
+        </ul>
+      </li>
+      <li><strong>Legal Compliance:</strong> We may disclose information if required by law or in response to valid
+        requests by public authorities (e.g., a court or a government agency).</li>
+      <li><strong>Business Transfers:</strong> In connection with any merger, sale of company assets, financing, or
+        acquisition of all or a portion of our business to another company.</li>
+    </ul>
+
+    <h2>4. Data Retention and Security</h2>
+    <p>We retain your personal information only for as long as is necessary for the purposes set out in this Privacy
+      Policy. We implement appropriate technical and organizational security measures to protect your data against
+      unauthorized access, alteration, disclosure, or destruction. However, please note that no method of transmission
+      over the Internet is 100% secure.</p>
+
+    <h2>5. Your Rights (GDPR & CCPA)</h2>
+    <p>Depending on your location, you may have the following rights regarding your personal data:</p>
+    <ul>
+      <li><strong>Access:</strong> The right to request copies of your personal data.</li>
+      <li><strong>Rectification:</strong> The right to request that we correct any information you believe is
+        inaccurate.</li>
+      <li><strong>Deletion:</strong> The right to request that we erase your personal data ("Right to be Forgotten"),
+        subject to certain conditions.</li>
+      <li><strong>Restriction of Processing:</strong> The right to request that we restrict the processing of your
+        personal data.</li>
+      <li><strong>Data Portability:</strong> The right to request that we transfer the data that we have collected to
+        another organization, or directly to you.</li>
+    </ul>
+    <p>To exercise any of these rights, please contact us at <a href="mailto:info@xcthermal.com">info@xcthermal.com</a>.
+    </p>
+
+    <h2>6. Cookies and Tracking Technologies</h2>
+    <p>We use cookies and similar tracking technologies to track the activity on our Service and hold certain
+      information. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent.
+      However, if you do not accept cookies, you may not be able to use some portions of our Service (e.g., staying
+      logged in).</p>
+
+    <h2>7. Children's Privacy</h2>
+    <p>Our Service is not intended for use by children under the age of 13 ("Children"). We do not knowingly collect
+      personally identifiable information from Children. If you become aware that a Child has provided us with Personal
+      Data, please contact us. If we become aware that we have collected Personal Data from Children without
+      verification of parental consent, we take steps to remove that information from our servers.</p>
+
+    <h2>8. Changes to This Privacy Policy</h2>
+    <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy
+      Policy on this page and updating the "Last Updated" date at the top. You are advised to review this Privacy Policy
+      periodically for any changes.</p>
+
+    <h2>9. Contact Us</h2>
+    <p>If you have any questions about this Privacy Policy, please contact us:</p>
+    <p>By email: <a href="mailto:info@xcthermal.com">info@xcthermal.com</a></p>
+
+  </div>
+
+</body>
+
+</html>

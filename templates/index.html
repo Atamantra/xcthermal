@@ -1,0 +1,2242 @@
+<html lang="en">
+
+<head>
+    <!-- Google Analytics (GA4) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-83QR773B3W"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-83QR773B3W');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>XcThermal | AI Paragliding Weather &amp; Thermal Maps</title>
+    <meta name="description"
+        content="Advanced paragliding weather forecasts, thermal maps, and AI-powered flight condition analysis. Plan your XC flights with precision using Open-Meteo and Meteoblue data.">
+    <meta name="keywords"
+        content="paragliding weather, thermal map, xc flying, flight forecast, meteogram, paragliding thermals, hike and fly, weather ai">
+    <meta name="author" content="XcThermal">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://xcthermal.com">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://xcthermal.com">
+    <meta property="og:title" content="XcThermal - AI Powered Paragliding Weather">
+    <meta property="og:description"
+        content="Get AI-powered thermal predictions, 3D mapping, and personalized flight reports.">
+    <meta property="og:image" content="/static/social_card.png?v=1">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://xcthermal.com/">
+    <meta name="twitter:title" content="XcThermal | AI Paragliding Weather &amp; 3D Maps">
+    <meta name="twitter:description" content="Plan your next XC flight with AI insights and interactive 3D maps.">
+    <meta name="twitter:image" content="/static/social_card.png?v=1">
+
+    <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "XcThermal",
+    "operatingSystem": "Web",
+    "applicationCategory": "SportsApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "A paragliding weather application providing thermal maps and AI-assisted flight forecasts.",
+    "author": {
+        "@type": "Person",
+        "name": "Ataberk Doğanlı"
+    }
+  }
+  </script>
+
+    <!-- Favicon Integration -->
+    <link rel="icon" href="/static/favicon.ico?v=6" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png?v=6">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png?v=6">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png?v=6">
+
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.js"></script>
+    <link rel="stylesheet"
+        href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css">
+    <script
+        src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.8.0/suncalc.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Draggable.min.js"></script>
+
+
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/antigravity.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js" async=""
+        crossorigin="anonymous"
+        data-clerk-publishable-key="pk_test_cHJvbXB0LXN0dWQtNDUuY2xlcmsuYWNjb3VudHMuZGV2JA"></script>
+</head>
+
+<body>
+
+
+
+
+
+
+    <header>
+        <nav class="main-nav">
+            <a href="/map">Home</a>
+            {% if current_user.is_authenticated %}
+            <div id="creditPill" class="credit-pill trial-mode"
+                onclick="document.getElementById('addCreditsModalOverlay').classList.add('active')">
+                <div class="coin-icon"></div>
+                <span id="creditCount" class="credit-count">{{ current_user.credits }}</span>
+            </div>
+            <a href="#" id="navProfileBtn">Profile</a>
+            <a href="/logout">Logout</a>
+            {% else %}
+            <a href="#" id="navLoginBtn">Login</a>
+            <a href="#" id="navRegisterBtn">Register</a>
+            {% endif %}
+
+        </nav>
+    </header>
+
+    <div id="map"></div>
+
+
+    <div id="mapLogoContainer" class="logo-visible">
+        <a href="/map" id="mapLogoLink">
+            <img src="/static/logo.png" alt="XC Thermal Logo" id="mapLogo">
+        </a>
+    </div>
+
+    <!-- 3D Flight Player UI (Mapbox Integration) -->
+    <!-- Telemetry HUD (Top-Left) -->
+    <div id="telemetryHUD" class="telemetry-hud" style="display: none;">
+        <div class="hud-item">
+            <span class="hud-label">ALTitude</span>
+            <span class="hud-value" id="hudAlt">--</span>
+            <span class="hud-unit">m</span>
+        </div>
+        <div class="hud-item">
+            <span class="hud-label">SPEED</span>
+            <span class="hud-value" id="hudSpeed">--</span>
+            <span class="hud-unit">km/h</span>
+        </div>
+        <div class="hud-item">
+            <span class="hud-label">VARIO</span>
+            <span class="hud-value" id="hudVario">--</span>
+            <span class="hud-unit">m/s</span>
+        </div>
+    </div>
+
+    <!-- Playback Control Bar (Bottom-Center) -->
+    <div id="playbackBar" class="playback-bar" style="display: none;">
+        <button id="playPauseBtn" class="playback-btn" title="Play/Pause">
+            <span class="icon-play">▶</span>
+        </button>
+
+        <div class="slider-container">
+            <span id="currentTime" class="time-display">00:00:00</span>
+            <input type="range" id="timeSlider" class="time-slider" min="0" max="100" value="0">
+            <span id="totalTime" class="time-display">00:00:00</span>
+        </div>
+
+        <div class="speed-control">
+            <span id="speedDisplay">1x</span>
+            <button id="speedToggleBtn" class="playback-btn small" title="Change Speed">
+                <span class="icon-speed">⚡</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="flash-messages-container">
+
+
+
+    </div>
+    <button id="searchToggleBtn" title="Search">
+        <img src="/static/search.png" alt="Search">
+    </button>
+    <div id="searchWrapper" style="display: none;">
+        <div id="searchPanel">
+            <div id="geocoder-container">
+                <div class="mapboxgl-ctrl-geocoder mapboxgl-ctrl"><svg
+                        class="mapboxgl-ctrl-geocoder--icon mapboxgl-ctrl-geocoder--icon-search" viewBox="0 0 18 18"
+                        xml:space="preserve" width="18" height="18">
+                        <path
+                            d="M7.4 2.5c-2.7 0-4.9 2.2-4.9 4.9s2.2 4.9 4.9 4.9c1 0 1.8-.2 2.5-.8l3.7 3.7c.2.2.4.3.8.3.7 0 1.1-.4 1.1-1.1 0-.3-.1-.5-.3-.8L11.4 10c.4-.8.8-1.6.8-2.5.1-2.8-2.1-5-4.8-5zm0 1.6c1.8 0 3.2 1.4 3.2 3.2s-1.4 3.2-3.2 3.2-3.3-1.3-3.3-3.1 1.4-3.3 3.3-3.3z">
+                        </path>
+                    </svg><input type="text" class="mapboxgl-ctrl-geocoder--input" placeholder="Search location..."
+                        aria-label="Search location...">
+                    <div class="suggestions-wrapper">
+                        <ul class="suggestions" style="display: none;"></ul>
+                    </div>
+                    <div class="mapboxgl-ctrl-geocoder--pin-right"><button aria-label="Clear"
+                            class="mapboxgl-ctrl-geocoder--button"><svg
+                                class="mapboxgl-ctrl-geocoder--icon mapboxgl-ctrl-geocoder--icon-close"
+                                viewBox="0 0 18 18" xml:space="preserve" width="18" height="18">
+                                <path
+                                    d="M3.8 2.5c-.6 0-1.3.7-1.3 1.3 0 .3.2.7.5.8L7.2 9 3 13.2c-.3.3-.5.7-.5 1 0 .6.7 1.3 1.3 1.3.3 0 .7-.2 1-.5L9 10.8l4.2 4.2c.2.3.7.3 1 .3.6 0 1.3-.7 1.3-1.3 0-.3-.2-.7-.3-1l-4.4-4L15 4.6c.3-.2.5-.5.5-.8 0-.7-.7-1.3-1.3-1.3-.3 0-.7.2-1 .3L9 7.1 4.8 2.8c-.3-.1-.7-.3-1-.3z">
+                                </path>
+                            </svg></button><svg
+                            class="mapboxgl-ctrl-geocoder--icon mapboxgl-ctrl-geocoder--icon-loading"
+                            viewBox="0 0 18 18" xml:space="preserve" width="18" height="18">
+                            <path fill="#333" d="M4.4 4.4l.8.8c2.1-2.1 5.5-2.1 7.6 0l.8-.8c-2.5-2.5-6.7-2.5-9.2 0z">
+                            </path>
+                            <path opacity=".1"
+                                d="M12.8 12.9c-2.1 2.1-5.5 2.1-7.6 0-2.1-2.1-2.1-5.5 0-7.7l-.8-.8c-2.5 2.5-2.5 6.7 0 9.2s6.6 2.5 9.2 0 2.5-6.6 0-9.2l-.8.8c2.2 2.1 2.2 5.6 0 7.7z">
+                            </path>
+                        </svg></div>
+                </div>
+            </div>
+            <button id="historyToggle">History</button>
+            <ul id="historyList" class="hidden"></ul>
+            <div id="weatherBox" class="hidden"></div>
+        </div>
+    </div>
+    <button id="statsButton" class="statsIcon" title="Statistics">
+        <img src="/static/stats.png" alt="Stats">
+    </button>
+    <button id="tutorialBtn" title="Restart Tutorial">?</button>
+    <button id="creditsBtn" title="Credits &amp; Info"
+        onclick="document.getElementById('welcomeModalOverlay').classList.add('active')">i</button>
+
+    <button id="calculatorBtn" title="Distance &amp; Triangle Calculator">
+        <img src="/static/triangle1.png" alt="Calculator">
+    </button>
+
+    <div id="calculatorPanel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 style="margin:0; font-size:16px;">XC Calculator</h3>
+            <button id="closeCalculatorBtn"
+                style="background:none; border:none; font-size:18px; cursor:pointer;">×</button>
+        </div>
+        <div id="calculatorResult" style="font-size:14px; margin-bottom:15px; min-height:40px;">
+            <p style="text-align:center; color:#777;">Click map to add Start/Turnpoints</p>
+        </div>
+
+        <input type="file" id="trackUploadInput" accept=".igc,.gpx,.kml" style="display: none;">
+        <button id="uploadTrackBtn"
+            style="width: 100%; margin-bottom: 8px; padding: 8px; background-color: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+            📂 Upload Flight Record
+        </button>
+
+        <button id="clearCalculatorBtn"
+            style="width:100%; padding:8px; background:#f44336; color:white; border:none; border-radius:6px; cursor:pointer;">Clear
+            Points</button>
+    </div>
+
+
+
+    <button id="settingsBtn" class="settings-icon" title="Settings">
+        <img src="/static/settings.png" alt="Settings">
+    </button>
+
+    <div id="settingsPanel" class="settings-panel">
+        <button id="closeSettingsBtn" class="close-btn" title="Close Settings">×</button>
+        <h2 id="settingsTitle">Settings</h2>
+        <div class="setting-group">
+            <label for="languageSelect" id="labelLanguage">Language:</label>
+            <select id="languageSelect">
+
+                <option value="ab">Abkhazian
+                </option>
+
+                <option value="aa">Afar
+                </option>
+
+                <option value="af">Afrikaans
+                </option>
+
+                <option value="ak">Akan
+                </option>
+
+                <option value="sq">Albanian
+                </option>
+
+                <option value="am">Amharic
+                </option>
+
+                <option value="ar">Arabic
+                </option>
+
+                <option value="an">Aragonese
+                </option>
+
+                <option value="hy">Armenian
+                </option>
+
+                <option value="as">Assamese
+                </option>
+
+                <option value="av">Avaric
+                </option>
+
+                <option value="ae">Avestan
+                </option>
+
+                <option value="ay">Aymara
+                </option>
+
+                <option value="az">Azerbaijani
+                </option>
+
+                <option value="bm">Bambara
+                </option>
+
+                <option value="ba">Bashkir
+                </option>
+
+                <option value="eu">Basque
+                </option>
+
+                <option value="be">Belarusian
+                </option>
+
+                <option value="bn">Bengali
+                </option>
+
+                <option value="bi">Bislama
+                </option>
+
+                <option value="bs">Bosnian
+                </option>
+
+                <option value="br">Breton
+                </option>
+
+                <option value="bg">Bulgarian
+                </option>
+
+                <option value="my">Burmese
+                </option>
+
+                <option value="ca">Catalan
+                </option>
+
+                <option value="ch">Chamorro
+                </option>
+
+                <option value="ce">Chechen
+                </option>
+
+                <option value="zh">Chinese
+                </option>
+
+                <option value="cu">Church Slavic
+                </option>
+
+                <option value="cv">Chuvash
+                </option>
+
+                <option value="kw">Cornish
+                </option>
+
+                <option value="co">Corsican
+                </option>
+
+                <option value="cr">Cree
+                </option>
+
+                <option value="hr">Croatian
+                </option>
+
+                <option value="cs">Czech
+                </option>
+
+                <option value="da">Danish
+                </option>
+
+                <option value="dv">Dhivehi
+                </option>
+
+                <option value="nl">Dutch
+                </option>
+
+                <option value="dz">Dzongkha
+                </option>
+
+                <option value="en" selected="">English
+                </option>
+
+                <option value="eo">Esperanto
+                </option>
+
+                <option value="et">Estonian
+                </option>
+
+                <option value="ee">Ewe
+                </option>
+
+                <option value="fo">Faroese
+                </option>
+
+                <option value="fj">Fijian
+                </option>
+
+                <option value="fi">Finnish
+                </option>
+
+                <option value="fr">French
+                </option>
+
+                <option value="ff">Fulah
+                </option>
+
+                <option value="gl">Galician
+                </option>
+
+                <option value="lg">Ganda
+                </option>
+
+                <option value="ka">Georgian
+                </option>
+
+                <option value="de">German
+                </option>
+
+                <option value="gn">Guarani
+                </option>
+
+                <option value="gu">Gujarati
+                </option>
+
+                <option value="ht">Haitian
+                </option>
+
+                <option value="ha">Hausa
+                </option>
+
+                <option value="he">Hebrew
+                </option>
+
+                <option value="hz">Herero
+                </option>
+
+                <option value="hi">Hindi
+                </option>
+
+                <option value="ho">Hiri Motu
+                </option>
+
+                <option value="hu">Hungarian
+                </option>
+
+                <option value="is">Icelandic
+                </option>
+
+                <option value="io">Ido
+                </option>
+
+                <option value="ig">Igbo
+                </option>
+
+                <option value="id">Indonesian
+                </option>
+
+                <option value="ia">Interlingua (International Auxiliary Language Association)
+                </option>
+
+                <option value="ie">Interlingue
+                </option>
+
+                <option value="iu">Inuktitut
+                </option>
+
+                <option value="ik">Inupiaq
+                </option>
+
+                <option value="ga">Irish
+                </option>
+
+                <option value="it">Italian
+                </option>
+
+                <option value="ja">Japanese
+                </option>
+
+                <option value="jv">Javanese
+                </option>
+
+                <option value="kl">Kalaallisut
+                </option>
+
+                <option value="kn">Kannada
+                </option>
+
+                <option value="kr">Kanuri
+                </option>
+
+                <option value="ks">Kashmiri
+                </option>
+
+                <option value="kk">Kazakh
+                </option>
+
+                <option value="km">Khmer
+                </option>
+
+                <option value="ki">Kikuyu
+                </option>
+
+                <option value="rw">Kinyarwanda
+                </option>
+
+                <option value="ky">Kirghiz
+                </option>
+
+                <option value="kv">Komi
+                </option>
+
+                <option value="kg">Kongo
+                </option>
+
+                <option value="ko">Korean
+                </option>
+
+                <option value="kj">Kuanyama
+                </option>
+
+                <option value="ku">Kurdish
+                </option>
+
+                <option value="lo">Lao
+                </option>
+
+                <option value="la">Latin
+                </option>
+
+                <option value="lv">Latvian
+                </option>
+
+                <option value="li">Limburgan
+                </option>
+
+                <option value="ln">Lingala
+                </option>
+
+                <option value="lt">Lithuanian
+                </option>
+
+                <option value="lu">Luba-Katanga
+                </option>
+
+                <option value="lb">Luxembourgish
+                </option>
+
+                <option value="mk">Macedonian
+                </option>
+
+                <option value="mg">Malagasy
+                </option>
+
+                <option value="ms">Malay (macrolanguage)
+                </option>
+
+                <option value="ml">Malayalam
+                </option>
+
+                <option value="mt">Maltese
+                </option>
+
+                <option value="gv">Manx
+                </option>
+
+                <option value="mi">Maori
+                </option>
+
+                <option value="mr">Marathi
+                </option>
+
+                <option value="mh">Marshallese
+                </option>
+
+                <option value="el">Modern Greek (1453-)
+                </option>
+
+                <option value="mn">Mongolian
+                </option>
+
+                <option value="na">Nauru
+                </option>
+
+                <option value="nv">Navajo
+                </option>
+
+                <option value="ng">Ndonga
+                </option>
+
+                <option value="ne">Nepali (macrolanguage)
+                </option>
+
+                <option value="nd">North Ndebele
+                </option>
+
+                <option value="se">Northern Sami
+                </option>
+
+                <option value="no">Norwegian
+                </option>
+
+                <option value="nb">Norwegian Bokmål
+                </option>
+
+                <option value="nn">Norwegian Nynorsk
+                </option>
+
+                <option value="ny">Nyanja
+                </option>
+
+                <option value="oc">Occitan (post 1500)
+                </option>
+
+                <option value="oj">Ojibwa
+                </option>
+
+                <option value="or">Oriya (macrolanguage)
+                </option>
+
+                <option value="om">Oromo
+                </option>
+
+                <option value="os">Ossetian
+                </option>
+
+                <option value="pi">Pali
+                </option>
+
+                <option value="pa">Panjabi
+                </option>
+
+                <option value="fa">Persian
+                </option>
+
+                <option value="pl">Polish
+                </option>
+
+                <option value="pt">Portuguese
+                </option>
+
+                <option value="ps">Pushto
+                </option>
+
+                <option value="qu">Quechua
+                </option>
+
+                <option value="ro">Romanian
+                </option>
+
+                <option value="rm">Romansh
+                </option>
+
+                <option value="rn">Rundi
+                </option>
+
+                <option value="ru">Russian
+                </option>
+
+                <option value="sm">Samoan
+                </option>
+
+                <option value="sg">Sango
+                </option>
+
+                <option value="sa">Sanskrit
+                </option>
+
+                <option value="sc">Sardinian
+                </option>
+
+                <option value="gd">Scottish Gaelic
+                </option>
+
+                <option value="sr">Serbian
+                </option>
+
+                <option value="sh">Serbo-Croatian
+                </option>
+
+                <option value="sn">Shona
+                </option>
+
+                <option value="ii">Sichuan Yi
+                </option>
+
+                <option value="sd">Sindhi
+                </option>
+
+                <option value="si">Sinhala
+                </option>
+
+                <option value="sk">Slovak
+                </option>
+
+                <option value="sl">Slovenian
+                </option>
+
+                <option value="so">Somali
+                </option>
+
+                <option value="nr">South Ndebele
+                </option>
+
+                <option value="st">Southern Sotho
+                </option>
+
+                <option value="es">Spanish
+                </option>
+
+                <option value="su">Sundanese
+                </option>
+
+                <option value="sw">Swahili (macrolanguage)
+                </option>
+
+                <option value="ss">Swati
+                </option>
+
+                <option value="sv">Swedish
+                </option>
+
+                <option value="tl">Tagalog
+                </option>
+
+                <option value="ty">Tahitian
+                </option>
+
+                <option value="tg">Tajik
+                </option>
+
+                <option value="ta">Tamil
+                </option>
+
+                <option value="tt">Tatar
+                </option>
+
+                <option value="te">Telugu
+                </option>
+
+                <option value="th">Thai
+                </option>
+
+                <option value="bo">Tibetan
+                </option>
+
+                <option value="ti">Tigrinya
+                </option>
+
+                <option value="to">Tonga (Tonga Islands)
+                </option>
+
+                <option value="ts">Tsonga
+                </option>
+
+                <option value="tn">Tswana
+                </option>
+
+                <option value="tr">Turkish
+                </option>
+
+                <option value="tk">Turkmen
+                </option>
+
+                <option value="tw">Twi
+                </option>
+
+                <option value="ug">Uighur
+                </option>
+
+                <option value="uk">Ukrainian
+                </option>
+
+                <option value="ur">Urdu
+                </option>
+
+                <option value="uz">Uzbek
+                </option>
+
+                <option value="ve">Venda
+                </option>
+
+                <option value="vi">Vietnamese
+                </option>
+
+                <option value="vo">Volapük
+                </option>
+
+                <option value="wa">Walloon
+                </option>
+
+                <option value="cy">Welsh
+                </option>
+
+                <option value="fy">Western Frisian
+                </option>
+
+                <option value="wo">Wolof
+                </option>
+
+                <option value="xh">Xhosa
+                </option>
+
+                <option value="yi">Yiddish
+                </option>
+
+                <option value="yo">Yoruba
+                </option>
+
+                <option value="za">Zhuang
+                </option>
+
+                <option value="zu">Zulu
+                </option>
+
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label for="voiceStyleSelect" id="labelVoiceStyle">AI Voice Style:</label>
+            <select id="voiceStyleSelect">
+                <option value="journey-f">Journey (Female - Deep & Natural)</option>
+                <option value="journey-m">Journey (Male - Deep & Natural)</option>
+                <option value="journey-o">Journey (Neutral - Deep & Natural)</option>
+                <option value="wavenet-a">Wavenet A (Female - Professional)</option>
+                <option value="wavenet-b">Wavenet B (Male - Professional)</option>
+                <option value="wavenet-c">Wavenet C (Female - Energetic)</option>
+                <option value="wavenet-d">Wavenet D (Male - Energetic)</option>
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label for="unitSelect" id="labelUnits">Units:</label>
+            <select id="unitSelect">
+                <option value="metric">Metric (m/km/°C)</option>
+                <option value="imperial">Imperial (ft/mi/°F)</option>
+            </select>
+        </div>
+        <div class="setting-group">
+            <label for="aiPromptStyle" id="labelStyle">AI Prompt Style:</label>
+            <select id="aiPromptStyle">
+                <option value="basic">Basic Summary</option>
+                <option value="pilot">Pilot-Level Detail</option>
+                <option value="xc">XC Planning Mode</option>
+                <option value="tandem">Tandem Pilot</option>
+                <option value="expert">Expert Level</option>
+                <option value="speed">Speed Flight</option>
+                <option value="acro">Acro Flight</option>
+                <option value="ridge">Ridge Soaring</option>
+                <option value="xcperfect">XcPerfect Alert</option>
+            </select>
+        </div>
+        <div class="setting-group">
+            <label for="mapStyleSelect" id="labelMapStyle">Map Style:</label>
+            <select id="mapStyleSelect">
+                <option value="mapbox://styles/mapbox/satellite-streets-v12">Satellite</option>
+                <option value="mapbox://styles/mapbox/outdoors-v12">Outdoors</option>
+            </select>
+        </div>
+        <div class="setting-group">
+            <label id="labelHotspots"
+                style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <span style="font-weight: bold; color: #fff;">Hotspots</span>
+                <label class="switch" style="margin-left: 10px;">
+                    <input type="checkbox" id="hotspotCheckbox">
+                    <span class="slider"></span>
+                </label>
+            </label>
+        </div>
+
+
+
+        <!-- SpotAiR Toggle -->
+        <div class="setting-group" style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 10px; margin-top: 10px;">
+            <label id="labelSpotAir"
+                style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <span style="font-weight: bold; color: #fff;">SpotAiR <span
+                        style="color: #ef4444; font-size: 0.8em;">LIVE</span></span>
+                <label class="switch" style="margin-left: 10px;">
+                    <input type="checkbox" id="spotairCheckbox">
+                    <span class="slider"></span>
+                </label>
+            </label>
+        </div>
+    </div>
+
+
+    <button id="aiToggleBtn" class="ai-bounce" title="Interpret Weather">Interpret</button>
+
+    <div id="aiPanel" class="ai-panel">
+        <button id="aiCloseBtn" class="ai-close-btn">×</button>
+        <h2 class="ai-panel-title">Weather Analysis</h2>
+
+        <!-- Email Report Container (Top) -->
+        <div class="email-report-container" style="display: none; margin-bottom: 15px;">
+            <p class="email-title">📩 Save / Send Report</p>
+
+
+            <div class="email-options">
+                <label class="email-option-label">
+                    <input type="radio" name="emailTargetTop" value="me" checked="" onchange="toggleEmailInput(this)">
+                    Send to Me
+                </label>
+                <label class="email-option-label">
+                    <input type="radio" name="emailTargetTop" value="other" onchange="toggleEmailInput(this)">
+                    Send to Other
+                </label>
+            </div>
+
+
+            <div class="email-input-group">
+                <input type="email" class="recipient-email-input" placeholder="Enter email address"
+                    value="doganliataberk@gmail.com" disabled="">
+                <button class="btn-send-email">Send</button>
+            </div>
+            <p class="email-status-msg"></p>
+        </div>
+
+        <script>
+            function toggleEmailInput(radio) {
+                const container = radio.closest('.email-report-container');
+                const emailInput = container.querySelector('.recipient-email-input');
+                if (radio.value === 'me') {
+                    emailInput.value = "doganliataberk@gmail.com";
+                    emailInput.disabled = true;
+                } else {
+                    emailInput.value = "";
+                    emailInput.disabled = false;
+                    emailInput.focus();
+                }
+            }
+        </script>
+
+        <!-- TTS Listen Container (shown after interpretation completes) -->
+        <div id="ttsContainer" class="tts-container" style="display: none;">
+            <button id="ttsBtn" class="btn-tts">🔊 Listen</button>
+            <button id="ttsStopBtn" class="btn-tts-stop" style="display: none;">⏹ Stop</button>
+            <span id="ttsStatus" class="tts-status"></span>
+        </div>
+
+        <div id="aiOutput" class="ai-output-text">
+            Loading interpretation. It May Take Up To 1-2 Minutes.
+        </div>
+
+
+
+
+    </div>
+
+
+    <button id="fakeAiToggleBtn" class="ai-bounce" title="Interpret Weather" style="display: none;">Interpret</button>
+
+    <div id="thermalBox" class="collapsed">
+        <div id="thermalHeader">Thermal Forecast ▲</div>
+        <div id="thermalImageScroll">
+            <img id="thermalImage" src="" alt="Thermal forecast will appear here."
+                style="display: none; opacity: 0; transform: scale(0.98);">
+            <div id="thermalPlaceholder">Click on a location to load the thermal forecast.</div>
+        </div>
+    </div>
+
+    <div id="imageModal" class="image-modal hidden">
+        <span id="modalClose" class="close-btn" role="button" aria-label="Close modal">×</span>
+        <img id="modalImage" class="modal-content" alt="Enlarged thermal forecast">
+    </div>
+
+    <div id="chartContainer"
+        style="display:none; position:fixed; bottom:30px; left:0; width:100%; height:200px; background:rgba(255,255,255,0.9); z-index:999; border-top:1px solid #ccc; padding:10px;">
+        <button id="closeChartBtn"
+            style="position:absolute; top:5px; right:20px; border:none; background:none; font-size:20px; cursor:pointer;">×</button>
+        <canvas id="altitudeChart"></canvas>
+    </div>
+
+    <footer id="verticalFooter"> XcThermal© | Contribution:
+        <a href="https://www.paraglidingearth.com" target="_blank">ParaglidingEarth</a>,
+        <a href="https://thermal.kk7.ch" target="_blank" rel="noopener noreferrer">thermal.kk7.ch</a>,
+        <a href="https://www.meteoblue.com" target="_blank" rel="noopener noreferrer">meteoblue</a>
+    </footer>
+
+    {% if not current_user.is_authenticated %}
+    <div id="authModalOverlay" class="auth-modal-overlay">
+        <div id="authModalContent" class="auth-modal-content">
+            <h2>Login Required</h2>
+            <form method="POST" action="{{ url_for('login') }}">
+                <div class="form-group">
+                    <label for="modalUsername">Username</label>
+                    <input type="text" id="modalUsername" name="username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="modalPassword">Password</label>
+                    <input type="password" id="modalPassword" name="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="modal-login-btn">Log In</button>
+            </form>
+
+            <div class="social-login">
+                <div class="divider"><span>Or</span></div>
+                <a href="/login/google" class="social-btn google-btn">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google">
+                    Log in with Google
+                </a>
+            </div>
+            <p class="modal-register-text" style="margin-top: 15px;"><a href="#"
+                    onclick="switchModal('authModalOverlay', 'resetPasswordModalOverlay'); return false;">Forgot
+                    Password?</a></p>
+            <p class="modal-register-text">Don't have an account? <a href="#"
+                    onclick="switchModal('authModalOverlay', 'registerModalOverlay'); return false;">Register here</a>
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
+    <div id="spotairOverlay" class="spotair-overlay">
+        <iframe id="spotairIframe" src="about:blank" width="100%" height="100%" frameborder="0" allow="geolocation">
+        </iframe>
+    </div>
+
+    <script>
+        window.userIsAuthenticated = {{ 'true' if user_authenticated else 'false' }};
+        window.userLastState = {{ user_last_state | tojson if user_last_state else 'null' }};
+        window.interpretationCost = {{ interpretation_cost | default (1) }};
+        window.userCredits = {{ current_user.credits if user_authenticated else 0 }};
+        window.userTutorialCompleted = {{ 'true' if tutorial_completed else 'false' }};
+        window.mapboxToken = "{{ mapbox_token | default('pk.eyJ1IjoiYXRhbWFudHJhIiwiYSI6ImNtZGxrcnZrdjExZjQya3M1Nm9peGg3bGcifQ.jefvIQmFvkvVupd5ekfoSg') }}";
+
+        function closeProfileModal() {
+            document.getElementById('profileModalOverlay').classList.remove('active');
+            const userInfo = document.querySelector('.user-info');
+            if (userInfo) userInfo.style.display = '';
+        }
+
+        // Daily Interpreter Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const infoBtn = document.getElementById('info-btn');
+            const infoContent = document.getElementById('info-content');
+            if (infoBtn && infoContent) {
+                infoBtn.addEventListener('click', () => {
+                    infoContent.style.display = infoContent.style.display === 'none' ? 'block' : 'none';
+                });
+            }
+
+            const dailyEmailCheckbox = document.getElementById('dailyEmailEnabled');
+            const settingsContainer = document.querySelector('.interpreter-settings');
+            if (dailyEmailCheckbox && settingsContainer) {
+                dailyEmailCheckbox.addEventListener('change', () => {
+                    settingsContainer.style.display = dailyEmailCheckbox.checked ? 'block' : 'none';
+                });
+            }
+
+            const saveDailyBtn = document.getElementById('save-daily');
+            const saveStatus = document.getElementById('save-status');
+
+            // --- Min XC Logic Initialization ---
+            const xcToggle = document.getElementById('dailyMinXcToggle');
+            const xcInput = document.getElementById('dailyMinXcInput');
+            const xcLabel = document.getElementById('minXcUnitLabel');
+
+            function updateXcDisplay() {
+                const units = localStorage.getItem('unitSystem') || 'metric';
+                const isImperial = units === 'imperial';
+                if (xcLabel) xcLabel.textContent = isImperial ? '(mi)' : '(km)';
+
+                if (xcToggle.checked) {
+                    xcInput.disabled = false;
+                } else {
+                    xcInput.disabled = true;
+                    xcInput.value = '';
+                }
+            }
+
+            if (xcToggle && xcInput) {
+                // Initialize from data attribute
+                const originalKm = parseFloat(xcInput.dataset.originalKm);
+                const units = localStorage.getItem('unitSystem') || 'metric';
+
+                if (originalKm && originalKm > 0) {
+                    xcToggle.checked = true;
+                    if (units === 'imperial') {
+                        xcInput.value = (originalKm * 0.621371).toFixed(1);
+                    } else {
+                        xcInput.value = originalKm;
+                    }
+                } else {
+                    xcToggle.checked = false;
+                    xcInput.value = '';
+                }
+                updateXcDisplay();
+
+                xcToggle.addEventListener('change', updateXcDisplay);
+
+                // Watch text input to ensure we don't save blank as 0 if toggled on? 
+                // Mostly just need to watch unit changes
+                const unitSelect = document.getElementById('unitSelect');
+                if (unitSelect) {
+                    unitSelect.addEventListener('change', () => {
+                        const newUnits = unitSelect.value;
+                        if (xcToggle.checked && xcInput.value) {
+                            const val = parseFloat(xcInput.value);
+                            if (!isNaN(val)) {
+                                if (newUnits === 'imperial') {
+                                    // Metric -> Imperial
+                                    xcInput.value = (val * 0.621371).toFixed(1);
+                                } else {
+                                    // Imperial -> Metric (val is miles)
+                                    xcInput.value = (val / 0.621371).toFixed(1);
+                                }
+                            }
+                        }
+                        updateXcDisplay();
+                    });
+                }
+            }
+
+            if (saveDailyBtn) {
+                saveDailyBtn.addEventListener('click', async () => {
+                    const dailyEmailEnabled = document.getElementById('dailyEmailEnabled').checked;
+                    const dailyTakeoffDirections = document.getElementById('dailyTakeoffDirections').value;
+                    const dailyAiStyle = document.getElementById('dailyAiStyle').value;
+                    const dailyAutoRoute = document.getElementById('dailyAutoRoute').checked;
+
+                    // Handle Min XC
+                    let dailyMinXcKm = null;
+                    if (document.getElementById('dailyMinXcToggle').checked) {
+                        const val = parseFloat(document.getElementById('dailyMinXcInput').value);
+                        if (!isNaN(val)) {
+                            const units = localStorage.getItem('unitSystem') || 'metric';
+                            dailyMinXcKm = (units === 'imperial') ? (val / 0.621371) : val;
+                        }
+                    }
+
+                    // Handle XcPerfect Location
+                    const xcLat = document.getElementById('xcLat').value;
+                    const xcLon = document.getElementById('xcLon').value;
+                    const xcAsl = document.getElementById('xcAsl').value;
+
+                    try {
+                        const response = await fetch('/api/settings', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                dailyEmailEnabled,
+                                dailyTakeoffDirections,
+                                dailyMinXcKm,
+                                dailyAiStyle,
+                                dailyAutoRoute,
+                                xcPerfectLat: xcLat,
+                                xcPerfectLon: xcLon,
+                                xcPerfectAsl: xcAsl
+                            })
+                        });
+                        if (response.ok) {
+                            saveStatus.style.opacity = '1';
+                            setTimeout(() => { saveStatus.style.opacity = '0'; }, 3000);
+                        } else { alert('Failed to save settings.'); }
+                    } catch (e) { console.error(e); alert('Error saving settings.'); }
+                });
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const messages = document.querySelectorAll('.flash-message');
+            messages.forEach(msg => {
+                setTimeout(() => {
+                    msg.style.opacity = '0';
+                    msg.style.transform = 'translateY(-20px)';
+                    setTimeout(() => { msg.remove(); }, 500);
+                }, 4000);
+            });
+        });
+    </script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Flight Analysis Footer -->
+    <div id="flight-analysis-footer" class="flight-footer">
+        <div class="flight-footer-banner" onclick="toggleFlightFooter()">
+            <div class="banner-content">
+                <span class="text">Flight Analysis</span>
+                <span class="toggle-icon">▲</span>
+            </div>
+        </div>
+        <div id="flight-analysis-content" class="flight-footer-content">
+            <div class="charts-container">
+                <div class="chart-wrapper">
+                    <canvas id="chart-elevation"></canvas>
+                </div>
+                <!-- Distance chart is often just cumulative distance over time, might be redundant with speed/time, skipping for now based on image -->
+                <div class="chart-wrapper">
+                    <canvas id="chart-speed"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="chart-vario"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module" src="/static/js/videoScroll.js"></script>
+    <script type="module" src="/static/js/ui/spotair_logic.js"></script>
+    <script type="module" src="/static/js/services/autoMail.js"></script>
+
+
+    <div id="tutorialOverlay" class="tutorial-overlay" style="display: none;">
+        <div class="tutorial-modal">
+            <h2 id="tutorialTitle">Welcome to XcThermal!</h2>
+            <p id="tutorialText">Let's take a quick tour to show you around.</p>
+            <div class="tutorial-navigation">
+                <button id="tutorialSkipBtn" class="tutorial-btn secondary">Skip Tour</button>
+                <button id="tutorialPrevBtn" class="tutorial-btn" style="display: none;">Previous</button>
+                <button id="tutorialNextBtn" class="tutorial-btn">Next</button>
+                <button id="tutorialDoneBtn" class="tutorial-btn" style="display: none;">Done</button>
+            </div>
+        </div>
+    </div>
+    <!-- Profile Modal (Restored Full Version) -->
+    {% if current_user.is_authenticated %}
+    <div id="profileModalOverlay" class="auth-modal-overlay">
+        <div class="profile-container auth-modal-content"
+            style="max-height: 85vh; overflow-y: auto; max-width: 800px; width: 90%;">
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h1 style="margin: 0; font-size: 2em; color: #007BFF;">{{ current_user.username }}</h1>
+                <button class="close-btn" onclick="closeProfileModal()"
+                    style="color: #333; font-size: 2em; background:none; border:none; cursor:pointer;">×</button>
+            </div>
+
+
+
+            <!-- Flash Messages -->
+            <div id="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+
+            <div class="profile-user-details">
+                <p>Email: <strong>{{ current_user.email }}</strong></p>
+                <p>Credits: <strong>{{ current_user.credits }}</strong></p>
+                <p>Joined: <strong>{{ current_user.created_at.strftime('%Y-%m-%d') if current_user.created_at else
+                        'Unknown' }}</strong></p>
+                <p>Total flight hour: <strong>{% if current_user.total_flight_time %}{{ current_user.total_flight_time
+                        // 60 }} h {{ current_user.total_flight_time % 60 }} minutes{% else %}0 h 0 minutes{% endif
+                        %}</strong></p>
+            </div>
+
+            <div class="actions" style="margin: 20px 0; text-align: center;">
+                <a href="#" class="modal-login-btn"
+                    onclick="closeProfileModal(); document.getElementById('addCreditsModalOverlay').classList.add('active'); return false;">Add
+                    Credits</a>
+                <a href="/logout" class="modal-login-btn" style="background: #dc3545; margin-left: 10px;">Logout</a>
+            </div>
+
+            <!-- Daily Interpreter Section (Moved) -->
+            <!-- Flight Log Section -->
+            <div class="flight-log-section" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                <div class="section-header"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2 style="margin: 0;">Flight Logs</h2>
+                    <input type="file" id="profileFlightUploadInput" accept=".igc" style="display: none;">
+                    <button id="profileUploadBtn" class="modal-login-btn"
+                        style="background: #28a745; font-size: 0.9em; padding: 8px 15px;">
+                        + Upload Flight
+                    </button>
+                </div>
+
+                <div class="flight-list-container" style="max-height: 300px; overflow-y: auto;">
+                    <table class="flight-table" style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Location</th>
+                                <th>Duration</th>
+                                <th>Dist (km)</th>
+                                <th>Gain (m)</th>
+                                <th style="text-align: center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="flightListBody">
+                            <tr>
+                                <td class="flight-date">2020-08-13</td>
+                                <td class="flight-location">
+                                    <div class="flight-point">
+                                        <span class="flight-icon takeoff" title="Takeoff">🛫</span>
+                                        <span class="time-label">10:34:31</span>
+                                        <span class="location-name" title="Çal">Çal</span>
+                                    </div>
+                                    <div class="flight-point">
+                                        <span class="flight-icon landing" title="Landing">🛬</span>
+                                        <span class="time-label">14:08:32</span>
+                                        <span class="location-name" title="Orhanlı">Orhanlı</span>
+                                    </div>
+                                </td>
+                                <td class="flight-data-mono">3h 34m</td>
+                                <td class="flight-data-mono flight-dist-glow">135.2</td>
+                                <td class="flight-data-mono">2326</td>
+                                <td class="flight-actions">
+                                    <button class="btn-icon-action btn-open-flight" data-id="1" title="View on Map">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-icon-action btn-delete-flight" data-id="1" title="Delete Flight">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path
+                                                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="flight-date">2020-08-07</td>
+                                <td class="flight-location">
+                                    <div class="flight-point">
+                                        <span class="flight-icon takeoff" title="Takeoff">🛫</span>
+                                        <span class="time-label">09:10:32</span>
+                                        <span class="location-name" title="Çal">Çal</span>
+                                    </div>
+                                    <div class="flight-point">
+                                        <span class="flight-icon landing" title="Landing">🛬</span>
+                                        <span class="time-label">12:16:05</span>
+                                        <span class="location-name" title="Belence">Belence</span>
+                                    </div>
+                                </td>
+                                <td class="flight-data-mono">3h 5m</td>
+                                <td class="flight-data-mono flight-dist-glow">125.6</td>
+                                <td class="flight-data-mono">2811</td>
+                                <td class="flight-actions">
+                                    <button class="btn-icon-action btn-open-flight" data-id="2" title="View on Map">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-icon-action btn-delete-flight" data-id="2" title="Delete Flight">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path
+                                                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- XcPerfect Section -->
+            <div class="daily-interpreter-section" style="display: flex; align-items: center; justify-content: center; min-height: 400px; background: rgba(128, 128, 128, 0.15); border-radius: 12px; backdrop-filter: blur(10px);">
+                <div style="text-align: center;">
+                    <h2 style="font-size: 2em; color: #999; margin: 0; font-weight: 300;">Coming Soon</h2>
+                </div>
+            </div>
+
+
+
+
+        </div>
+    </div>
+
+
+
+    <div id="creditsModalOverlay" class="auth-modal-overlay">
+        <div class="auth-modal-content">
+            <h2>Insufficient Credits</h2>
+            <p>You need at least 1 credit to view the thermal forecast.</p>
+            <div style="margin-top: 20px; display: flex; justify-content: center; gap: 10px;">
+                <a href="/add_credits" class="modal-login-btn" style="text-decoration: none; display: inline-block;">Get
+                    Credits</a>
+                <button class="modal-login-btn" style="background-color: #6c757d;"
+                    onclick="document.getElementById('creditsModalOverlay').classList.remove('active')">Close</button>
+            </div>
+        </div>
+    </div>
+    <!-- Confirmation Modal -->
+    <div id="confirmationModalOverlay" class="auth-modal-overlay">
+        <div class="auth-modal-content" style="text-align: center; max-width: 400px;">
+            <div style="text-align: right;"><button class="close-btn"
+                    onclick="document.getElementById('confirmationModalOverlay').classList.remove('active')">×</button>
+            </div>
+            <h2 id="confirmationTitle">Confirm Action</h2>
+            <p id="confirmationMessage">Are you sure?</p>
+            <div style="margin-top: 20px;">
+                <button id="confirmYesBtn" class="modal-login-btn">Yes</button>
+                <button class="modal-login-btn" style="background-color: #6c757d; margin-left: 10px;"
+                    onclick="document.getElementById('confirmationModalOverlay').classList.remove('active')">No</button>
+            </div>
+        </div>
+    </div>
+    <!-- Add Credits Modal -->
+    <div id="addCreditsModalOverlay" class="auth-modal-overlay">
+        <div class="auth-modal-content" style="text-align: center; max-width: 600px; margin: 0 auto; width: 95%;">
+            <div style="text-align: right;"><button class="close-btn"
+                    onclick="document.getElementById('addCreditsModalOverlay').classList.remove('active')">×</button>
+            </div>
+            <h2>Get Credits</h2>
+            <!-- Currency Toggle -->
+            <div class="currency-selector-wrapper" style="margin-bottom: 20px; text-align: center;">
+                <select id="currencySelect" onchange="updateCurrency(this.value)" class="glass-select compact-select">
+                    <option value="TRY" selected="">TRY - Turkish Lira</option>
+                    <option value="USD">USD - US Dollar</option>
+                    <option value="EUR">EUR - Euro</option>
+                    <option value="GBP">GBP - British Pound</option>
+                    <option value="AUD">AUD - Australian Dollar</option>
+                    <option value="BRL">BRL - Brazilian Real</option>
+                    <option value="CAD">CAD - Canadian Dollar</option>
+                    <option value="CHF">CHF - Swiss Franc</option>
+                    <option value="CNY">CNY - Chinese Yuan</option>
+                    <option value="DKK">DKK - Danish Krone</option>
+                    <option value="HKD">HKD - Hong Kong Dollar</option>
+                    <option value="INR">INR - Indian Rupee</option>
+                    <option value="JPY">JPY - Japanese Yen</option>
+                    <option value="KRW">KRW - South Korean Won</option>
+                    <option value="MXN">MXN - Mexican Peso</option>
+                    <option value="NOK">NOK - Norwegian Krone</option>
+                    <option value="NZD">NZD - New Zealand Dollar</option>
+                    <option value="PLN">PLN - Polish Złoty</option>
+                    <option value="RUB">RUB - Russian Ruble</option>
+                    <option value="SEK">SEK - Swedish Krona</option>
+                    <option value="SGD">SGD - Singapore Dollar</option>
+                    <option value="ZAR">ZAR - South African Rand</option>
+                </select>
+            </div>
+            <p style="color: rgba(255,255,255,0.8); margin-bottom: 20px;">Current Balance: <strong>3</strong> credits
+            </p>
+
+            <div class="credit-packages-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px;">
+
+                <div class="credit-card" onclick="buyCredits(5)">
+                    <div class="credit-amount">5</div>
+                    <div class="credit-label">Credits</div>
+                    <div class="credit-price" data-base-price="30">30 TL</div>
+                </div>
+                <!-- Package 10 -->
+                <div class="credit-card" onclick="buyCredits(10)">
+                    <div class="badge" style="background:#ff9800;">Best Option</div>
+                    <div class="credit-amount">10</div>
+                    <div class="credit-label">Credits</div>
+                    <div class="credit-price" data-base-price="50">50 TL</div>
+                </div>
+                <!-- Package 20 -->
+                <div class="credit-card" onclick="buyCredits(20)">
+                    <div class="credit-amount">20</div>
+                    <div class="credit-label">Credits</div>
+                    <div class="credit-price" data-base-price="100">100 TL</div>
+                </div>
+                <!-- Package 40 -->
+                <div class="credit-card" onclick="buyCredits(40)">
+                    <div class="credit-amount">40</div>
+                    <div class="credit-label">Credits</div>
+                    <div class="credit-price" data-base-price="200">200 TL</div>
+                </div>
+                <!-- Package 80 -->
+                <div class="credit-card" onclick="buyCredits(80)">
+                    <div class="credit-amount">80</div>
+                    <div class="credit-label">Credits</div>
+                    <div class="credit-price" data-base-price="400">400 TL</div>
+                </div>
+                <!-- Package 160 -->
+                <div class="credit-card best-value" onclick="buyCredits(160)">
+                    <div class="badge">Best Price!</div>
+                    <div class="credit-amount">160</div>
+                    <div class="credit-label">Credits</div>
+                    <div class="credit-price" data-base-price="500">500 TL</div>
+                </div>
+            </div>
+
+            <div class="payment-info-container">
+                <div class="payment-secure">
+                    <span class="icon">🔒</span> Secure payment via Stripe
+                </div>
+                <div class="payment-conversion">
+                    <span class="icon">🤖</span> 1 Credit ≈ 1 AI Interpretation
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stripe JS -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        const stripe = Stripe("pk_live_51PtNwOHx6MpLr9dmzK2Q3SSM3Ip2LXXLeNMwU5xUIacGqMbudc5QFven09RuoIh6apLTvazKZfwxMW8ColmwytE700L43AtfFk"); // From template var
+        let currentCurrency = 'TRY';
+        let conversionRates = {}; // Cache rates
+
+        async function updateCurrency(currency) {
+            currentCurrency = currency;
+            const priceElements = document.querySelectorAll('.credit-price');
+
+            // Show loading state
+            priceElements.forEach(el => el.style.opacity = '0.5');
+
+            let rate = 1;
+            let symbol = 'TL';
+
+            if (currency !== 'TRY') {
+                if (!conversionRates[currency]) {
+                    try {
+                        const resp = await fetch(`https://api.frankfurter.app/latest?from=TRY&to=${currency}`);
+                        const data = await resp.json();
+                        conversionRates[currency] = data.rates[currency];
+                    } catch (e) {
+                        console.error("Rate fetch failed", e);
+                        alert("Could not fetch rates. Reverting to TRY.");
+                        document.getElementById('currencySelect').value = 'TRY';
+                        updateCurrency('TRY');
+                        return;
+                    }
+                }
+                rate = conversionRates[currency];
+            }
+
+            // Set Symbol
+            symbol = currency;
+            try {
+                // Formatting currency using Intl to get the correct symbol
+                const formatter = new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: currency,
+                });
+                const parts = formatter.formatToParts(0);
+                const symbolPart = parts.find(part => part.type === 'currency');
+                if (symbolPart) symbol = symbolPart.value;
+            } catch (e) {
+                console.warn("Symbol lookup failed", e);
+            }
+
+            // Update Prices
+            priceElements.forEach(el => {
+                const basePrice = parseFloat(el.getAttribute('data-base-price'));
+                let finalPrice = basePrice * rate;
+
+                // Format
+                el.innerText = `${symbol}${finalPrice.toFixed(2)}`;
+                if (currency === 'TRY') {
+                    // Keep integer for TRY purely for aesthetic preference if desired, 
+                    // or just use consistent formatting. Let's use 2 decimals for consistency 
+                    // unless it's strictly .00
+                    el.innerText = `${Math.round(finalPrice)} ${symbol}`;
+                }
+
+                el.style.opacity = '1';
+            });
+        }
+
+        async function detectUserCurrency() {
+            // Check if user already manually selected a currency before (optional, but good UX)
+            // For now, let's prioritize detection as requested, or check localStorage if we implemented it.
+
+            try {
+                const response = await fetch('https://ipapi.co/currency/');
+                if (response.ok) {
+                    const detectedCurrency = await response.text();
+                    // Check if this currency is in our dropdown
+                    const select = document.getElementById('currencySelect');
+                    const options = Array.from(select.options).map(opt => opt.value);
+
+                    if (options.includes(detectedCurrency) && detectedCurrency !== 'TRY') {
+                        console.log(`Detected currency: ${detectedCurrency}`);
+                        select.value = detectedCurrency;
+                        updateCurrency(detectedCurrency);
+                    }
+                }
+            } catch (e) {
+                console.warn("Currency detection failed", e);
+            }
+        }
+
+        // Run on load
+        detectUserCurrency();
+
+        async function buyCredits(amount) {
+            const btn = event.currentTarget;
+            btn.style.opacity = '0.7';
+            btn.style.cursor = 'wait';
+
+            try {
+                const response = await fetch('/create-checkout-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        credits: amount,
+                        currency: currentCurrency
+                    })
+                });
+
+                const session = await response.json();
+                if (session.error) {
+                    alert('Error: ' + session.error);
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                    return;
+                }
+
+                // Redirect to Stripe
+                const result = await stripe.redirectToCheckout({ sessionId: session.id });
+                if (result.error) {
+                    alert(result.error.message);
+                }
+            } catch (err) {
+                console.error("Payment Error:", err);
+                alert("Payment functionality unavailable.");
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+            }
+        }
+    </script><iframe name="__privateStripeController9491" frameborder="0" allowtransparency="true" scrolling="no"
+        role="presentation" allow="payment *"
+        src="https://js.stripe.com/v3/controller-with-preconnect-be8e11a47b21d9dba6efe2921cb1e8cb.html#__shared_params__[version]=v3&amp;__shared_params__[light_experiment_assignments]=%7B%22token%22%3A%22b09b842f-7f9a-4e36-8c46-ac932e3bf044%22%2C%22assignments%22%3A%7B%22elements_generic_skeleton_loader_v4%22%3A%22control%22%7D%7D&amp;apiKey=pk_live_51PtNwOHx6MpLr9dmzK2Q3SSM3Ip2LXXLeNMwU5xUIacGqMbudc5QFven09RuoIh6apLTvazKZfwxMW8ColmwytE700L43AtfFk&amp;stripeJsId=b09b842f-7f9a-4e36-8c46-ac932e3bf044&amp;stripeObjId=sobj-32742b07-e8b3-4b8e-83a4-4941d18fe600&amp;firstStripeInstanceCreatedLatency=15&amp;controllerCount=1&amp;isCheckout=false&amp;stripeJsLoadTime=1771355615511&amp;manualBrowserDeprecationRollout=false&amp;mids[guid]=NA&amp;mids[muid]=NA&amp;mids[sid]=NA&amp;referrer=http%3A%2F%2F127.0.0.1%3A5001%2Fmap&amp;controllerId=__privateStripeController9491"
+        aria-hidden="true" tabindex="-1"
+        style="border: medium !important; margin: 0px !important; padding: 0px !important; width: 1px !important; min-width: 100% !important; overflow: hidden !important; display: block !important; visibility: hidden !important; position: fixed !important; height: 1px !important; pointer-events: none !important;"></iframe>
+
+    <style>
+        .credit-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s, border-color 0.2s;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .credit-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .credit-amount {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .credit-label {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 5px;
+        }
+
+        .credit-price {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #28a745;
+            /* Green for money */
+            background: rgba(40, 167, 69, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .credit-card.popular {
+            border-color: #ffc107;
+            background: rgba(255, 193, 7, 0.1);
+        }
+
+        .credit-card.best-value {
+            border-color: #007bff;
+            background: rgba(0, 123, 255, 0.1);
+        }
+
+        .badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #ffc107;
+            color: #000;
+            font-size: 0.6em;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .credit-card.best-value .badge {
+            background: #007bff;
+            color: white;
+        }
+    </style>
+
+    {% endif %}
+
+    <!-- Register Modal -->
+    <div id="registerModalOverlay" class="auth-modal-overlay">
+        <div class="auth-modal-content">
+            <div style="text-align: right;"><button class="close-btn"
+                    onclick="document.getElementById('registerModalOverlay').classList.remove('active')">×</button>
+            </div>
+            <h2>Register</h2>
+
+            <div class="social-login" style="margin-bottom: 20px;">
+                <a href="/login/google" class="social-btn google-btn">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google">
+                    Register with Google
+                </a>
+                <div class="divider"><span>Or</span></div>
+            </div>
+
+            <form method="POST" action="/register">
+                <div class="form-group">
+                    <label for="regUsername">Username</label>
+                    <input type="text" id="regUsername" name="username" required="">
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" name="email" required="">
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <input type="password" id="regPassword" name="password" required="">
+                    <p class="modal-register-text"
+                        style="font-size: 0.8em; margin-top: 6px; text-align: left; opacity: 0.8;">Requirements: Minimum
+                        8 characters.</p>
+                </div>
+                <div class="tos-container">
+                    <input type="checkbox" id="tos_agree" name="tos_agree" required="">
+                    <label for="tos_agree">
+                        I agree to the <a href="/terms" target="_blank">Terms</a> &amp; <a href="/privacy"
+                            target="_blank">Privacy</a>.
+                    </label>
+                </div>
+                <div class="tos-container">
+                    <input type="checkbox" id="waiver_agree" name="waiver_agree" required="">
+                    <label for="waiver_agree">
+                        I accept the <a href="#" onclick="openWaiverText(event)">Flight Safety Waiver</a>.
+                    </label>
+                </div>
+                <button type="submit" class="modal-login-btn">Create Account</button>
+            </form>
+            <p class="modal-register-text">Already have an account? <a href="#"
+                    onclick="switchModal('registerModalOverlay', 'authModalOverlay'); return false;">Log in</a></p>
+        </div>
+    </div>
+
+    <!-- Email Verification Modal -->
+    <div id="verifyModalOverlay" class="auth-modal-overlay">
+        <div class="auth-modal-content">
+            <div style="text-align: right;"><button class="close-btn"
+                    onclick="document.getElementById('verifyModalOverlay').classList.remove('active')">×</button>
+            </div>
+            <h2>Verify Email</h2>
+            <p id="verifyEmailText" class="modal-register-text" style="margin-bottom: 20px;">Enter verification code
+                sent to your email.</p>
+            <form id="verifyCodeForm">
+                <div class="form-group">
+                    <label for="verifyCodeInput">Verification Code</label>
+                    <input type="text" id="verifyCodeInput" name="code" required="" placeholder="e.g. 123456">
+                </div>
+                <button type="submit" class="modal-login-btn">Verify</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        function getVerificationCode(email) {
+            return new Promise((resolve) => {
+                const overlay = document.getElementById('verifyModalOverlay');
+                const textStr = document.getElementById('verifyEmailText');
+                if (textStr) textStr.innerText = "Enter verification code sent to " + email;
+                const form = document.getElementById('verifyCodeForm');
+                const input = document.getElementById('verifyCodeInput');
+                input.value = '';
+                overlay.classList.add('active');
+                form.onsubmit = function (e) {
+                    e.preventDefault();
+                    overlay.classList.remove('active');
+                    resolve(input.value);
+                };
+                const closeBtn = overlay.querySelector('.close-btn');
+                closeBtn.onclick = function () {
+                    overlay.classList.remove('active');
+                    resolve(null);
+                };
+            });
+        }
+    </script>
+
+    <!-- Read-Only Waiver Modal (For Registration) -->
+    <div id="waiverTextModal" class="auth-modal-overlay" style="z-index: 10001;">
+        <div class="auth-modal-content" style="max-width: 700px; width: 100%;">
+            <div style="text-align: right;"><button class="close-btn"
+                    onclick="document.getElementById('waiverTextModal').classList.remove('active')">×</button>
+            </div>
+            <h2 style="color: #dc3545 !important; margin-top: 0;">Flight Safety Waiver</h2>
+
+            <div class="legal-text-box"
+                style="background: rgba(255,255,255,0.1); padding: 15px; height: 300px; overflow-y: auto; text-align: left; margin-bottom: 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); font-size: 0.9em;">
+
+                <h3 style="font-size: 1.1em; color: #87CEEB;"> Waiver of Liability</h3>
+                <p>To the maximum extent permitted by law, you release Ata Travel Ltd from any liability for
+                    accidents resulting from your use of the Service.</p>
+            </div>
+
+            <button class="modal-login-btn"
+                onclick="document.getElementById('waiverTextModal').classList.remove('active')">Close</button>
+        </div>
+    </div>
+
+    <!-- Login Modal Helper -->
+    <script>
+        function openWaiverText(e) {
+            e.preventDefault();
+            document.getElementById('waiverTextModal').classList.add('active');
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const loginModalContent = document.querySelector('#authModalOverlay .auth-modal-content');
+            if (loginModalContent && !loginModalContent.querySelector('.close-btn')) {
+                const closeDiv = document.createElement('div');
+                closeDiv.style.textAlign = 'right';
+                closeDiv.innerHTML = `<button class="close-btn" onclick="document.getElementById('authModalOverlay').classList.remove('active')">&times;</button>`;
+                loginModalContent.prepend(closeDiv);
+            }
+        });
+    </script>
+    <!-- Reset Password Modal -->
+    <div id="resetPasswordModalOverlay" class="auth-modal-overlay">
+        <div class="auth-modal-content">
+            <div style="text-align: right;"><button class="close-btn"
+                    onclick="document.getElementById('resetPasswordModalOverlay').classList.remove('active')">×</button>
+            </div>
+            <h2>Reset Password</h2>
+            <p>Enter your email to receive reset instructions.</p>
+            <form id="resetPasswordForm" onsubmit="handleResetSubmit(event)">
+                <div class="form-group">
+                    <label for="resetEmail">Email</label>
+                    <input type="email" id="resetEmail" name="email" required="">
+                </div>
+                <button type="submit" class="modal-login-btn">Send Reset Link</button>
+            </form>
+            <div id="resetStatusMessage" style="margin-top: 10px; font-weight: bold;"></div>
+            <p class="modal-register-text"><a href="#"
+                    onclick="switchModal('resetPasswordModalOverlay', 'authModalOverlay'); return false;">Back to
+                    Login</a></p>
+        </div>
+    </div>
+    <script>
+        async function handleResetSubmit(event) {
+            event.preventDefault();
+            const email = document.getElementById('resetEmail').value;
+            const btn = event.target.querySelector('button');
+            const statusDiv = document.getElementById('resetStatusMessage');
+
+            btn.disabled = true;
+            btn.innerText = "Sending...";
+            statusDiv.style.color = 'white';
+            statusDiv.innerText = "";
+
+            try {
+                const formData = new FormData();
+                formData.append('email', email);
+
+                const response = await fetch('/reset_password_request', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.status === 'success') {
+                    statusDiv.style.color = '#28a745';
+                    statusDiv.innerText = "If an account exists, a reset email has been sent.";
+                    alert("Request sent! Check your inbox.");
+                } else {
+                    statusDiv.style.color = '#dc3545';
+                    statusDiv.innerText = data.message || "Error sending request.";
+                    alert("Error: " + (data.message || "Unknown error"));
+                }
+            } catch (err) {
+                console.error("Reset error:", err);
+                statusDiv.style.color = '#dc3545';
+                statusDiv.innerText = "Network error. Please try again.";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Send Reset Link";
+            }
+        }
+    </script>
+
+    <!-- Welcome Modal -->
+    <div id="welcomeModalOverlay" class="auth-modal-overlay">
+        <div id="welcomeContent" class="auth-modal-content" style="text-align: center;">
+            <button class="close-btn"
+                onclick="document.getElementById('welcomeModalOverlay').classList.remove('active')"
+                style="float: right;">×</button>
+            <h2 style="margin-top: 0;">Welcome to XcThermal <span style="font-size: 0.6em; color: #aaa;">v1.1</span>
+            </h2>
+            <!-- How it works expandable tab -->
+            <div class="how-it-works-container" style="margin: 15px 0 25px 0;">
+                <button class="how-it-works-btn" onclick="toggleHowItWorks(this)">
+                    How it works <span class="arrow">▾</span>
+                </button>
+                <div id="howItWorksExpanded" class="how-it-works-content" style="display: none;">
+                    <div style="padding: 15px; text-align: left; font-size: 0.95em; line-height: 2;">
+                        <p style="margin-bottom: 15px;">
+                            XcThermal fetches data from
+                            <a href="https://open-meteo.com/" target="_blank" class="pill-link meteo">Open-Meteo</a>
+                            and
+                            <a href="https://www.meteoblue.com/" target="_blank" class="pill-link meteo">Meteoblue</a>.
+                        </p>
+                        <p style="margin-bottom: 0;">
+                            It is interpreted by
+                            <a href="https://deepmind.google/technologies/gemini/" target="_blank"
+                                class="pill-link gemini">✨ Gemini 3</a>,
+                            an AI agent that reads visual meteograms and raw data to give the weather forecast.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function toggleHowItWorks(btn) {
+                    const content = document.getElementById('howItWorksExpanded');
+                    const arrow = btn.querySelector('.arrow');
+                    if (content.style.display === 'none') {
+                        content.style.display = 'block';
+                        arrow.innerHTML = '▴';
+                        btn.style.background = 'rgba(255,255,255,0.2)';
+                    } else {
+                        content.style.display = 'none';
+                        arrow.innerHTML = '▾';
+                        btn.style.background = 'rgba(255,255,255,0.1)';
+                    }
+                }
+            </script>
+
+            <div
+                style="margin: 20px 0; text-align: left; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                <p style="margin: 5px 0; font-size: 0.95em;"><strong>Credits:</strong> Developed by Ataberk Doğanlı
+                </p>
+                <p style="margin: 5px 0; font-size: 0.95em;"><strong>Disputes/Contact:</strong> <a
+                        href="mailto:info@xcthermal.com" style="color: #87CEEB;">info@xcthermal.com</a></p>
+            </div>
+
+            <p style="font-size: 0.9em; color: rgba(255,255,255,0.7); margin-bottom: 25px;">💡 For best 3D
+                performance,
+                use Google Chrome on desktop.</p>
+
+            <div style="margin: 25px 0;">
+                <a href="https://buymeacoffee.com/doganliatag" target="_blank" class="bmc-button"
+                    style="display: inline-flex; align-items: center; gap: 10px; background-color: #FFDD00; color: #000000; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-family: 'Cookie', cursive, sans-serif; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: transform 0.2s;">
+                    <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="Buy me a coffee"
+                        style="height: 25px; width: auto;">
+                    <span style="font-size: 1.1em; font-family: Arial, sans-serif;">Buy me a coffee</span>
+                </a>
+            </div>
+
+            <button class="modal-login-btn"
+                onclick="document.getElementById('welcomeModalOverlay').classList.remove('active')">Let's Fly!
+                🪂</button>
+        </div>
+    </div>
+
+    <!-- Safety Waiver Modal -->
+    <div id="waiverModalOverlay" class="auth-modal-overlay">
+        <div class="auth-modal-content" style="max-width: 700px; width: 100%;">
+            <h2 style="color: #dc3545 !important;">Safety Waiver</h2>
+            <p class="subtitle" style="font-size: 0.9em; margin-bottom: 40px;">Please review and accept terms to
+                continue.</p>
+
+            <div class="legal-text-box"
+                style="background: rgba(18, 41, 45, 0.26); padding: 26px; height: 225px; overflow-y: auto; text-align: left; margin-bottom: 4px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); font-size: 0.9em;">
+                <h3 style="font-size: 1.1em; color: #dc3545;"> Waiver of Liability</h3>
+                <p>To the maximum extent permitted by law, you release Ata Travel Ltd from any liability for
+                    accidents resulting from your use of the Service.</p>
+
+
+                <form id="waiverForm" method="POST" action="/safety-waiver">
+                    <div class="form-group"
+                        style="text-align: left; display: flex; align-items: flex-start; gap: 10px;">
+                        <input type="checkbox" id="modal_agreement" name="agreement" required=""
+                            style="width: 24px; height: 24px; margin-top: 0; cursor: pointer; accent-color: #dc3545;">
+                        <label for="modal_agreement" style="font-size: 1em; line-height: 1.4; color: white !important;">
+                            I am a certified pilot, I understand the risks, and I accept this waiver.
+                        </label>
+                    </div>
+                    <button type="submit" class="modal-login-btn"
+                        style="background-color: #dc3545; margin-top: 20px;">Confirm &amp; Continue</button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            // Waiver Form AJAX Handling
+            document.addEventListener("DOMContentLoaded", () => {
+                const waiverForm = document.getElementById('waiverForm');
+                if (waiverForm) {
+                    waiverForm.addEventListener('submit', function (e) {
+                        e.preventDefault(); // STOP default form submission
+                        e.stopPropagation();
+
+                        const formData = new FormData(this);
+                        const btn = this.querySelector('button[type="submit"]');
+                        const originalText = btn.innerText;
+                        btn.innerText = "Accepting...";
+                        btn.disabled = true;
+
+                        // Append ajax query param to ensure backend knows it's AJAX even if headers fail
+                        let fetchUrl = this.action;
+                        fetchUrl += (fetchUrl.includes('?') ? '&' : '?') + 'ajax=1';
+
+                        fetch(fetchUrl, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        })
+                            .then(response => {
+                                // If redirect (302) happened despite AJAX, handle it manually?
+                                // Usually fetch follows redirects automatically.
+                                if (response.redirected) {
+                                    window.location.href = response.url;
+                                    return;
+                                }
+                                if (response.ok) return response.json();
+                                throw new Error('Network response was not ok');
+                            })
+                            .then(data => {
+                                if (data && data.status === 'success') {
+                                    localStorage.setItem('waiverAccepted', 'true'); // Persist acceptance
+                                    document.getElementById('waiverModalOverlay').classList.remove('active');
+                                    // Reload page if needed, OR just hide modal. 
+                                    // User wanted "popup on same page", implies just hide.
+                                } else {
+                                    alert((data && data.message) || 'Error processing waiver.');
+                                    btn.innerText = originalText;
+                                    btn.disabled = false;
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                // Fallback: if AJAX fails hard, maybe reload?
+                                alert('Error accepting waiver. Please try again.');
+                                btn.innerText = originalText;
+                                btn.disabled = false;
+                            });
+                    });
+                }
+            });
+
+            function switchModal(hideId, showId) {
+                const hideEl = document.getElementById(hideId);
+                const showEl = document.getElementById(showId);
+                if (hideEl) hideEl.classList.remove('active');
+                // Small timeout to ensure transition/paint if needed, but usually instant is fine.
+                if (showEl) showEl.classList.add('active');
+
+                if (hideId === 'profileModalOverlay') {
+                    const userInfo = document.querySelector('.user-info');
+                    if (userInfo) userInfo.style.display = '';
+                }
+            }
+
+            {% if open_modal == 'register' %}
+            document.addEventListener("DOMContentLoaded", () => {
+                const regOverlay = document.getElementById('registerModalOverlay');
+                if (regOverlay) regOverlay.classList.add('active');
+            });
+            {% elif open_modal == 'login' %}
+            document.addEventListener("DOMContentLoaded", () => {
+                const authOverlay = document.getElementById('authModalOverlay');
+                if (authOverlay) authOverlay.classList.add('active');
+            });
+            {% endif %}
+        </script>
+        <!-- Clerk Integration Script (Modal) -->
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const publishableKey = "pk_test_cHJvbXB0LXN0dWQtNDUuY2xlcmsuYWNjb3VudHMuZGV2JA";
+
+                // Define global OAuth handler
+                window.signInWithOAuth = async (strategy) => {
+                    if (!window.Clerk) return;
+                    try {
+                        await window.Clerk.client.signIn.authenticateWithRedirect({
+                            strategy: strategy,
+                            redirectUrl: '/',
+                            redirectUrlComplete: '/'
+                        });
+                    } catch (err) {
+                        console.error("OAuth error:", err);
+                        alert("Social login failed: " + (err.message || "Unknown error"));
+                    }
+                };
+
+                if (publishableKey) {
+                    const script = document.createElement('script');
+                    script.src = "https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js";
+                    script.async = true;
+                    script.crossOrigin = "anonymous";
+                    script.setAttribute('data-clerk-publishable-key', publishableKey);
+
+                    script.onload = async function () {
+                        try {
+                            if (!window.Clerk) {
+                                await new Promise(r => setTimeout(r, 500));
+                            }
+                            if (!window.Clerk) return;
+
+                            await window.Clerk.load({});
+                            console.log("Clerk loaded");
+
+                            // Register Form Handler
+                            const regForm = document.querySelector('#registerModalOverlay form');
+                            if (regForm) {
+                                const regBtn = regForm.querySelector('button[type="submit"]');
+                                regForm.addEventListener('submit', async (e) => {
+                                    e.preventDefault();
+                                    const originalBtnText = "Create Account";
+                                    regBtn.textContent = "Creating Account...";
+                                    regBtn.disabled = true;
+
+                                    const username = document.getElementById('regUsername').value;
+                                    const email = document.getElementById('regEmail').value;
+                                    const password = document.getElementById('regPassword').value;
+
+                                    try {
+                                        const signUpAttempt = await window.Clerk.client.signUp.create({
+                                            username, emailAddress: email, password
+                                        });
+
+                                        if (signUpAttempt.status === 'missing_requirements') {
+                                            await signUpAttempt.prepareEmailAddressVerification({ strategy: "email_code" });
+                                            const code = await getVerificationCode(email);
+                                            if (code) {
+                                                const verifyAttempt = await signUpAttempt.attemptEmailAddressVerification({ code });
+                                                if (verifyAttempt.status === 'complete') {
+                                                    await window.Clerk.setActive({ session: verifyAttempt.createdSessionId });
+                                                    window.location.reload();
+                                                    return;
+                                                }
+                                            }
+                                            showCustomAlert("Verification needed.");
+                                        } else if (signUpAttempt.status === 'complete') {
+                                            await window.Clerk.setActive({ session: signUpAttempt.createdSessionId });
+                                            window.location.reload();
+                                        } else {
+                                            showCustomAlert(`Registration status: ${signUpAttempt.status}`);
+                                        }
+                                    } catch (err) {
+                                        console.error("Register error:", err);
+                                        const msg = err.errors?.[0]?.longMessage || err.message || "Registration failed";
+                                        showCustomAlert(msg);
+                                    } finally {
+                                        regBtn.textContent = originalBtnText;
+                                        regBtn.disabled = false;
+                                    }
+                                });
+                            }
+                        } catch (loadErr) {
+                            console.error("Clerk load error:", loadErr);
+                        }
+                    };
+                    document.head.appendChild(script);
+                }
+            });
+        </script>
+
+        <!-- Custom Alert Modal -->
+        <div id="customAlertOverlay" class="custom-alert-overlay">
+            <div class="custom-alert-box">
+                <div id="customAlertMessage" class="custom-alert-message"></div>
+                <button class="custom-alert-btn" onclick="closeCustomAlert()">Close</button>
+            </div>
+        </div>
+
+        <script>
+            function showCustomAlert(message) {
+                const overlay = document.getElementById('customAlertOverlay');
+                const msgEl = document.getElementById('customAlertMessage');
+                if (overlay && msgEl) {
+                    msgEl.textContent = message;
+                    overlay.classList.add('active');
+                } else {
+                    alert(message); // Fallback
+                }
+            }
+
+            function closeCustomAlert() {
+                const overlay = document.getElementById('customAlertOverlay');
+                if (overlay) {
+                    overlay.classList.remove('active');
+                }
+            }
+        </script>
+
+        <!-- Preloader Removal Script -->
+        <script>
+            window.addEventListener('load', function () {
+                const preloader = document.getElementById('antigravity-preloader');
+                if (preloader) {
+                    preloader.style.opacity = '0';
+                    setTimeout(() => {
+                        preloader.style.display = 'none';
+                    }, 500);
+                }
+            });
+
+            // Failsafe
+            setTimeout(() => {
+                const preloader = document.getElementById('antigravity-preloader');
+                if (preloader && preloader.style.display !== 'none') {
+                    preloader.style.opacity = '0';
+                    setTimeout(() => { preloader.style.display = 'none'; }, 500);
+                }
+            }, 3000);
+        </script>
+        <!-- Delete Flight Confirmation Modal -->
+        <div id="deleteFlightModal" class="auth-modal-overlay">
+            <div class="delete-confirm-content">
+                <h3>Delete Flight Log?</h3>
+                <p>Are you sure you want to delete this flight log? This action cannot be undone.</p>
+                <div class="confirm-actions">
+                    <button type="button" id="cancelDeleteBtn" class="btn-cancel">Cancel</button>
+                    <button type="button" id="confirmDeleteBtn" class="btn-confirm-delete">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            window.APP_VERSION_TIMESTAMP = "{{ now.timestamp() }}";
+        </script>
+        <script type="module" src="/static/js/main.js?v={{ now.timestamp() }}"></script>
+
+
+    </div>
+    <div id="clerk-components"></div><iframe name="__privateStripeMetricsController9490" frameborder="0"
+        allowtransparency="true" scrolling="no" role="presentation" allow="payment *"
+        src="https://js.stripe.com/v3/m-outer-3437aaddcdf6922d623e172c2d6f9278.html#url=http%3A%2F%2F127.0.0.1%3A5001%2Fmap&amp;title=XcThermal%20%7C%20AI%20Paragliding%20Weather%20%26%20Thermal%20Maps&amp;referrer=&amp;muid=NA&amp;sid=NA&amp;version=6&amp;preview=false&amp;__shared_params__[version]=v3"
+        aria-hidden="true" tabindex="-1"
+        style="border: medium !important; margin: 0px !important; padding: 0px !important; width: 1px !important; min-width: 100% !important; overflow: hidden !important; display: block !important; visibility: hidden !important; position: fixed !important; height: 1px !important; pointer-events: none !important;"></iframe>
+</body>
+
+</html>
+
+</html>

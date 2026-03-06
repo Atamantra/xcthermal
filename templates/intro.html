@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-83QR773B3W"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-83QR773B3W');
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>XcThermal | NEXT GEN FLIGHT FORECASTS</title>
+    <meta name="description" content="XcThermal - The Future of AI Paragliding Weather & Thermal Maps." />
+
+    <!-- Fonts -->
+    <link href="https://fonts.cdnfonts.com/css/clash-display" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/satoshi" rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='antigravity.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='cookie_banner.css') }}">
+
+    <style>
+        :root {
+            --bg-dark: #050810;
+            --text-light: #F0F4FF;
+            --accent-teal: #00E5CC;
+            --font-heading: 'Clash Display', sans-serif;
+            --font-body: 'Satoshi', sans-serif;
+        }
+
+        /* Minimal Reset for this page only */
+        html,
+        body {
+            height: auto !important;
+            min-height: 100vh;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: var(--font-body);
+        }
+
+        body {
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: 0.3s ease;
+        }
+
+        /* Typography */
+        h1,
+        h2,
+        h3 {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: #fff;
+        }
+
+        p {
+            line-height: 1.6;
+            color: rgba(240, 244, 255, 0.7);
+        }
+
+        /* Layout Grid */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            /* Moved from center to flex-start */
+            align-items: center;
+            text-align: center;
+            position: relative;
+            padding-top: 15vh;
+            /* Increased from 80px to push it up but not too far */
+            overflow: hidden;
+            background: var(--bg-dark);
+        }
+
+        #hero-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            object-fit: cover;
+            z-index: 0;
+            opacity: 0.6;
+            /* Adjust visibility vs background color */
+        }
+
+        #hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(5, 8, 16, 0.5), var(--bg-dark));
+            /* Darkened opacity from 0.3 to 0.5 */
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 800px;
+        }
+
+        .hero h1 {
+            font-size: 5rem;
+            margin-bottom: 24px;
+            line-height: 1;
+            text-transform: uppercase;
+            /* Made text fully white with stronger shadow for visibility */
+            color: #FFFFFF;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 255, 255, 0.2);
+            animation: fadeInUp 0.8s ease-out;
+            /* Removed gradient text for better readability on video */
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            max-width: 540px;
+            margin-bottom: 48px;
+            color: #FFFFFF;
+            /* Changed from rgba(240, 244, 255, 0.7) to full white */
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            /* Added shadow */
+            animation: fadeInUp 1s ease-out 0.2s backwards;
+        }
+
+        /* Language Switcher */
+        .language-switcher {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            z-index: 100;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .language-switcher a {
+            text-decoration: none;
+            color: inherit;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .language-switcher a:hover {
+            color: #fff;
+        }
+
+        .language-switcher a.active {
+            color: var(--accent-teal);
+        }
+
+        .language-switcher .divider {
+            margin: 0 5px;
+            opacity: 0.3;
+        }
+
+        /* OpenClaw-style Button */
+        .cta-button {
+            background-color: var(--accent-teal);
+            color: var(--bg-dark);
+            font-family: var(--font-body);
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 14px 32px;
+            border-radius: 4px;
+            /* Slightly rounded, utilitarian */
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 0 20px rgba(0, 229, 204, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 229, 204, 0.4);
+            background-color: #00ffe2;
+            /* Follow up slightly brighter */
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+                padding: 0 20px;
+            }
+        }
+
+        /* GRID SECTION */
+        .features {
+            padding: 100px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            padding: 40px;
+            text-align: left;
+        }
+
+        .feature-card h3 {
+            color: var(--accent-teal);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .feature-card ul {
+            list-style: none;
+            padding: 0;
+            color: var(--text-secondary);
+        }
+
+        .feature-card li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-card li::before {
+            content: '>';
+            color: var(--neon-cyan);
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                padding: 15px 20px;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            /* Simplified for mobile for now */
+        }
+    </style>
+</head>
+
+<body class="futuristic-body">
+
+    <div id="cookie-banner" data-nosnippet>
+        <div id="cookie-banner-content">
+            <div id="cookie-banner-text">
+                <p>We use cookies to enhance your experience. By continuing to visit this site you agree to our use of
+                    cookies.</p>
+            </div>
+            <div id="cookie-banner-buttons">
+                <button id="cookie-accept-btn" class="cookie-btn cookie-btn-accept">Accept</button>
+                <button id="cookie-decline-btn" class="cookie-btn cookie-btn-decline">Decline</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Stars -->
+    <div class="stars"></div>
+
+    <!-- Map Page Header Structure -->
+    <header>
+        <nav class="main-nav">
+
+            <a href="/map">{{ _('Live Map') }}</a>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('logout') }}">{{ _('Logout') }}</a>
+            {% else %}
+            <a href="{{ url_for('login') }}">{{ _('Login') }}</a>
+            <a href="{{ url_for('register') }}">{{ _('Register') }}</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <!-- Map Logo Container (Same as index.html) -->
+    <div id="mapLogoContainer" class="logo-visible" style="opacity: 1; transform: translateY(0);">
+        <a href="/">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="XC Thermal Logo" id="mapLogo" />
+        </a>
+    </div>
+
+    <!-- Hero -->
+    <section class="hero">
+        <video autoplay muted loop playsinline id="hero-video"
+            poster="{{ url_for('static', filename='social_card.png') }}">
+            <source id="vid-src-mobile" src="{{ url_for('static', filename='mobile_optimized.mp4') }}" type="video/mp4"
+                media="(max-width: 768px)">
+            <source id="vid-src-desktop" src="{{ url_for('static', filename='stevehamart_min.mp4') }}" type="video/mp4"
+                media="(min-width: 769px)">
+            <!-- Fallback -->
+            <source src="{{ url_for('static', filename='stevehamart_min.mp4') }}" type="video/mp4">
+        </video>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var vid = document.getElementById("hero-video");
+                var mobileSrc = "{{ url_for('static', filename='mobile_optimized.mp4') }}";
+                var desktopSrc = "{{ url_for('static', filename='stevehamart_min.mp4') }}";
+
+                function updateVideoSource() {
+                    var currentSrc = vid.currentSrc;
+                    // Check if we need to switch
+                    if (window.innerWidth <= 768) {
+                        // Mobile
+                        // If currentSrc is empty or not mobile, switch
+                        if (!currentSrc || currentSrc.indexOf("mobile_optimized.mp4") === -1) {
+                            vid.src = mobileSrc;
+                        }
+                    } else {
+                        // Desktop
+                        if (!currentSrc || currentSrc.indexOf("stevehamart_min.mp4") === -1) {
+                            vid.src = desktopSrc;
+                        }
+                    }
+                }
+
+                // Initial check
+                updateVideoSource();
+
+                // Listen for resize
+                var resizeTimeout;
+                window.addEventListener('resize', function () {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(updateVideoSource, 100);
+                });
+            });
+        </script>
+        <div id="hero-overlay"></div>
+
+        <h1 class="neon-text-cyan">{{ _('Atmospheric') }}<br>{{ _('Intelligence') }}</h1>
+        <p>{{ _('Advanced AI thermal prediction & weather synthesis for the modern pilot. Visualize the invisible.') }}
+        </p>
+        <div
+            style="animation: fadeIn 1.4s ease-out; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <a href="/map" class="btn-cyber" style="z-index: 100;">{{ _('Open Map') }}</a>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features container">
+        <div class="grid-3">
+            <div class="glass-panel feature-card">
+                <h3>{{ _('// AI Analysis') }}</h3>
+                <ul>
+                    <li>{{ _('Gemini 3.1 Integration') }}</li>
+                    <li>{{ _('Real-time Thermal Scoring') }}</li>
+                    <li>{{ _('Flyable Window Detection') }}</li>
+                </ul>
+            </div>
+
+            <div class="glass-panel feature-card">
+                <h3>{{ _('// 4D Visualization') }}</h3>
+                <ul>
+                    <li>{{ _('3D Terrain Mapping') }}</li>
+                    <li>{{ _('Wind Streamlines') }}</li>
+                    <li>{{ _('Cloud Cover Layers') }}</li>
+                </ul>
+            </div>
+
+            <div class="glass-panel feature-card testimonial-card">
+                <h3>{{ _('// People Know The Truth') }}</h3>
+                <p class="testimonial-quote">{{ _('"The most advanced & easiest tool I\'ve used."') }}
+                </p>
+                <div class="testimonial-profile">
+                    <div class="profile-image-container">
+                        <img src="{{ url_for('static', filename='baris_icon.png') }}" alt="Barış Çelik"
+                            class="profile-img">
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name">- Barış Çelik</div>
+                        <div class="profile-title">Redbull X-Alps Pilot</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Latest Flights Section (Leonardo Style) -->
+    <section class="container" style="padding: 60px 20px;">
+        <h2 style="font-size: 2.5rem; margin-bottom: 30px; color: #fff; text-align: center;">{{ _('Recent Flights') }}
+        </h2>
+
+        <div class="glass-panel"
+            style="padding: 0; border-radius: 12px; overflow: hidden; background: rgba(5, 8, 16, 0.8); border: 1px solid rgba(255, 255, 255, 0.1);">
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
+                    <thead>
+                        <tr
+                            style="background: rgba(0, 229, 204, 0.1); color: var(--accent-teal); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;">
+                            <th style="padding: 15px 20px; text-align: left;">{{ _('Date') }}</th>
+                            <th style="padding: 15px 20px; text-align: left;">{{ _('Pilot') }}</th>
+                            <th style="padding: 15px 20px; text-align: center;">{{ _('Duration') }}</th>
+                            <th style="padding: 15px 20px; text-align: center;">{{ _('Distance') }}</th>
+                            <th style="padding: 15px 20px; text-align: center;">{{ _('Max Alt') }}</th>
+                            <th style="padding: 15px 20px; text-align: center;">{{ _('View') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for flight in flights %}
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); transition: background 0.2s;">
+                            <td style="padding: 15px 20px; color: rgba(255, 255, 255, 0.8);">
+                                <div style="font-weight: bold; color: #fff;">{{ flight.date }}</div>
+                                <div style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.5);">📍 {{ flight.site }}
+                                </div>
+                            </td>
+                            <td style="padding: 15px 20px; font-weight: 600; color: #fff;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div
+                                        style="width: 24px; height: 24px; background: linear-gradient(135deg, #00E5CC, #00aca0); border-radius: 50%; color: #000; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">
+                                        {{ flight.pilot[0] | upper }}
+                                    </div>
+                                    {{ flight.pilot }}
+                                </div>
+                            </td>
+                            <td
+                                style="padding: 15px 20px; text-align: center; color: rgba(255, 255, 255, 0.7); font-family: monospace; font-size: 1rem;">
+                                {{ flight.duration }}</td>
+                            <td
+                                style="padding: 15px 20px; text-align: center; color: var(--accent-teal); font-weight: bold;">
+                                {{ flight.distance }} km</td>
+                            <td style="padding: 15px 20px; text-align: center; color: rgba(255, 255, 255, 0.7);">{{
+                                flight.max_alt }} m</td>
+                            <td style="padding: 15px 20px; text-align: center;">
+                                <a href="/map?flight_id={{ flight.id }}" class="view-flight-btn"
+                                    style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); color: #fff; text-decoration: none; transition: all 0.2s;"
+                                    title="{{ _('View Flight on Map') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                        viewBox="0 0 16 16">
+                                        <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
+                                        <path
+                                            d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+                                    </svg>
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" style="padding: 30px; text-align: center; color: rgba(255, 255, 255, 0.4);">
+                                {{ _('No flights recorded yet. Be the first to upload!') }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>{{ _('XcThermal © Ata Travel Ltd. 2026 // POWERED BY Meteoblue & Open Meteo & Gemini 3.1') }}</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/cookie_banner.js') }}"></script>
+    <script
+        type="text/javascript">window.$crisp = []; window.CRISP_WEBSITE_ID = "81edc338-ce58-4e8a-a4d8-5c1076e759c9"; (function () { d = document; s = d.createElement("script"); s.src = "https://client.crisp.chat/l.js"; s.async = 1; d.getElementsByTagName("head")[0].appendChild(s); })();</script>
+</body>
+
+</html>

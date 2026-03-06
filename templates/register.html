@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - XC Thermal</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}?v=6" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}?v=6">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}?v=6">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}?v=6">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* ... (all your existing styles remain here) ... */
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        .auth-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .auth-container h1 {
+            color: #007BFF;
+            margin-bottom: 25px;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .auth-container form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .auth-container label {
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .auth-container input[type="text"],
+        .auth-container input[type="email"],
+        .auth-container input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .auth-container input[type="text"]:focus,
+        .auth-container input[type="email"]:focus,
+        .auth-container input[type="password"]:focus {
+            border-color: #007BFF;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        .auth-container input[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            padding: 14px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
+        }
+
+        .auth-container input[type="submit"]:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .auth-container p {
+            margin-top: 25px;
+            font-size: 0.95em;
+            color: #666;
+        }
+
+        .auth-container a {
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-container a:hover {
+            text-decoration: underline;
+        }
+
+        /* ... (flash message styles remain here) ... */
+        #flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash-message {
+            padding: 12px 18px;
+            /* ... */
+        }
+
+        /* ... (all other flash styles) ... */
+
+
+        /* === NEW CSS RULES START === */
+
+        /* Style for the submit button when it's disabled */
+        .auth-container input[type="submit"]:disabled {
+            background-color: #9c9c9c;
+            /* Gray background */
+            cursor: not-allowed;
+            /* Show disabled cursor */
+            transform: none;
+            /* No hover effect */
+            box-shadow: none;
+            /* No shadow */
+        }
+
+        /* Container for the checkbox and label */
+        .tos-container {
+            display: flex;
+            align-items: flex-start;
+            /* Align to top */
+            text-align: left;
+            gap: 10px;
+            /* Space between checkbox and text */
+            margin-top: 5px;
+            /* Space above */
+            margin-bottom: 5px;
+            /* Space below */
+        }
+
+        /* Style for the checkbox itself */
+        .tos-container input[type="checkbox"] {
+            margin-top: 4px;
+            /* Align with first line of text */
+            flex-shrink: 0;
+            /* Don't let it shrink */
+        }
+
+        /* Style for the label text */
+        .tos-container label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 0;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        /* Style for the links inside the label */
+        .tos-container label a {
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .tos-container label a:hover {
+            text-decoration: underline;
+        }
+
+        /* === NEW CSS RULES END === */
+    </style>
+    <div id="mapLogoContainer">
+        <a href="/" id="mapLogoLink">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="XC Thermal Logo" id="mapLogo" />
+        </a>
+    </div>
+
+</head>
+
+<body>
+    <div class="auth-container">
+        <h1>Register for XC Thermal</h1>
+        <div id="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
+
+        <form method="POST" action="{{ url_for('register') }}">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required autocomplete="username">
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required autocomplete="email">
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required autocomplete="new-password">
+
+            <div class="tos-container">
+                <input type="checkbox" id="tos_agree" name="tos_agree" required>
+                <label for="tos_agree">
+                    I confirm I have read and agree to the
+                    <a href="{{ url_for('terms') }}" target="_blank">Terms of Service (EULA)</a>
+                    and
+                    <a href="{{ url_for('privacy') }}" target="_blank">Privacy Policy</a>.
+                </label>
+            </div>
+            <input type="submit" id="register_submit" value="Register">
+        </form>
+
+        <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
