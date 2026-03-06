@@ -1,7 +1,35 @@
-__pycache__/
-*.pyc
+# Environment
 .env
 .env.local
 .env.*.local
 xcthermal.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.Python
+
+# Database (CRITICAL - preserve on production)
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+stdout.txt
+stderr.txt
+last_error.txt
+
+# IDE/OS
 .DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Caches
+.cache
+*.cache
+*_cache.sqlite
