@@ -39,8 +39,8 @@ import markdown # <--- ADDED: Markdown Support
 import stripe # <--- ADDED: Stripe Support
 
 # --- BREVO IMPORTS (ADDED) ---
-import brevo_python
-from brevo_python.rest import ApiException
+import brevo
+from brevo.rest import ApiException
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, 'xcthermal.env'))
@@ -941,9 +941,9 @@ def send_brevo_email(email_to, lat, lon, asl, interpretation_text):
         logging.error("Brevo API Key not found in environment variables.")
         return False, "Server configuration error"
 
-    configuration = brevo_python.Configuration()
+    configuration = brevo.Configuration()
     configuration.api_key['api-key'] = api_key
-    api_instance = brevo_python.TransactionalEmailsApi(brevo_python.ApiClient(configuration))
+    api_instance = brevo.TransactionalEmailsApi(brevo.ApiClient(configuration))
 
     # 2. Fetch and Prepare the Image
     attachment = None
@@ -1023,7 +1023,7 @@ def send_brevo_email(email_to, lat, lon, asl, interpretation_text):
     </html>
     """
 
-    send_smtp_email = brevo_python.SendSmtpEmail(
+    send_smtp_email = brevo.SendSmtpEmail(
         to=to,
         sender=sender,
         subject=subject,
