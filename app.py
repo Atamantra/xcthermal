@@ -9,7 +9,7 @@ import time
 import io
 import base64 # <--- ADDED: Required for image attachment
 from PIL import Image
-from google import genai
+import google.generativeai as genai
 from geopy.distance import geodesic
 from datetime import datetime, timezone, timedelta
 from astral import LocationInfo
