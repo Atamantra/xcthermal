@@ -21,7 +21,7 @@ sleep 1
 # Fix for macOS High Sierra and later multithreading issue
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 
-nohup $GUNICORN_PATH -w 4 -t 120 -b 0.0.0.0:5001 wsgi:app > server.log 2>&1 &
-echo "Gunicorn started on port 5001."
+nohup $GUNICORN_PATH -w 4 -t 120 -b 0.0.0.0:8000 wsgi:app > server.log 2>&1 &
+echo "Gunicorn started on port 8000."
 sleep 3
 tail -n 20 server.log
