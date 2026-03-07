@@ -51,7 +51,18 @@ export async function initMap(mapboxToken) {
     zoom: initialZoom,
     pitch: initialPitch,
     bearing: initialBearing,
-    antialias: true
+    antialias: true,
+    optimizeForTerrain: true, // Fix for Safari spikes
+    pixelRatio: 1, // Safari performance & spike prevention
+    transformRequest: (url, resourceType) => {
+      // Force versioning on terrain tiles to leverage browser cache correctly
+      if (resourceType === 'Source' && url.includes('raster-dem')) {
+        return {
+          url: `${url}${url.includes('?') ? '&' : '?'}v=mar7-1828`
+        };
+      }
+      return { url };
+    }
   });
 
   // Save state on moveend

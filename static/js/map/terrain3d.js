@@ -89,7 +89,7 @@ export function enable3DMode(map) {
         // Apply the 3D terrain with stabilization
         map.setTerrain({
             source: DEM_SOURCE_ID,
-            exaggeration: 1.05 // Subtle exaggeration maintains performance and minimizes spikes
+            exaggeration: 1.1 // Subtle exaggeration maintains performance and minimizes spikes
         });
 
         // 3. Error handler: catch failed DEM tile loads to prevent spikes at data boundaries
