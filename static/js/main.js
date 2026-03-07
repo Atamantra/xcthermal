@@ -636,35 +636,12 @@ async function initApp() {
             // Setup 3D Toggle with Callback for HUD/Player
             setupStyleToggle(map, (is3D) => {
                 const hud = document.getElementById('telemetryHUD');
-                const playbackBar = document.getElementById('playbackBar'); if (is3D) {
+                const playbackBar = document.getElementById('playbackBar');
+                
+                if (is3D) {
                     // Enable UI - DISABLED per user request to debug spikes
                     // if (hud) hud.style.display = 'flex';
                     // if (playbackBar) playbackBar.style.display = 'flex';
-
-                    // Init Player if not exists - DISABLED
-                    /*
-                    if (!window.flightPlayer) {
-                        try {
-                            window.flightPlayer = new FlightPlayerUI();
-                            window.flightPlayer.setTotalDuration(3600); // Mock duration
-
-                            // Monkey-patch updatePlayButton to sync mini button
-                            if (window.flightPlayer.updatePlayButton) {
-                                const originalUpdate = window.flightPlayer.updatePlayButton.bind(window.flightPlayer);
-                                window.flightPlayer.updatePlayButton = function () {
-                                    originalUpdate();
-                                    if (miniPlayBtn) {
-                                        miniPlayBtn.innerHTML = this.isPlaying ? '⏸' : '▶';
-                                        miniPlayBtn.style.paddingLeft = this.isPlaying ? '0' : '3px';
-                                    }
-                                };
-                            }
-                            console.log("flightPlayer initialized via StyleToggle");
-                        } catch (e) {
-                            console.error("Error initializing FlightPlayerUI:", e);
-                        }
-                    }
-                    */
                 } else {
                     // Disable UI
                     if (hud) hud.style.display = 'none';

@@ -776,9 +776,7 @@ body {
 }
 
 #thermalBox.collapsed {
-  max-height: 36px;
-  width: 180px;
-  overflow: hidden;
+  display: none;
 }
 
 #thermalBox.expanded {
@@ -786,9 +784,9 @@ body {
   width: 350px; /* Slightly wider when open */
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
-  display: flex; /* Changed from block to flex */
+  display: flex; 
   flex-direction: column;
-  z-index: 100; /* Higher z-index */
+  z-index: 10; 
 }
 
 /* Header (Top Clickable Strip) */
