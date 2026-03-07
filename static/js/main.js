@@ -692,12 +692,12 @@ async function initApp() {
 
                 console.log("Map clicked. Coordinates:", e.lngLat.toArray());
 
-                // 1. Authentication Check
-                if (!window.userIsAuthenticated) {
-                    console.log("User not authenticated. Showing auth modal.");
-                    if (authModalOverlay) authModalOverlay.classList.add('active');
-                    return;
-                }
+                // 1. Authentication Check (Bypassed for testing)
+                // if (!window.userIsAuthenticated) {
+                //    console.log("User not authenticated. Showing auth modal.");
+                //    if (authModalOverlay) authModalOverlay.classList.add('active');
+                //    return;
+                // }
 
                 const { lat, lng } = e.lngLat;
                 logActivity('map_click', { lat, lon: lng });
@@ -724,83 +724,8 @@ async function initApp() {
                     }
                     console.log(`Altitude fetched: ${asl}m ASL`);
 
-                    // 3.5 Credit Check & Spending
-                    if (window.userCredits < 1) {
-                        const creditsModal = document.getElementById('creditsModalOverlay');
-                        if (creditsModal) {
-                            creditsModal.classList.add('active');
-                        } else {
-                            alert("You do not have enough credits to view the thermal forecast.");
-                        }
-                        return;
-                    }
-
-                    // Attempt to spend credit via API
-                    try {
-                        const spendResp = await fetch('/spend-credit', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        });
-
-                        // Check content type before parsing
-                        const contentType = spendResp.headers.get("content-type");
-                        if (!spendResp.ok) {
-                            // If 429 or other error, handle gracefully
-                            if (spendResp.status === 429) {
-                                throw new Error("Rate limit exceeded. Please wait.");
-                            }
-                            throw new Error(`Server returned ${spendResp.status}`);
-                        }
-
-                        let spendData;
-                        if (contentType && contentType.indexOf("application/json") !== -1) {
-                            spendData = await spendResp.json();
-                        } else {
-                            // Non-JSON response (likely HTML error from server/proxy)
-                            const text = await spendResp.text();
-                            console.warn("Received non-JSON response from /spend-credit:", text.substring(0, 100));
-                            throw new Error("Invalid server response format");
-                        }
-
-                        if (spendData.success) {
-                            // Update global state
-                            window.userCredits = spendData.credits;
-                            window.userIsTrial = spendData.is_trial;
-
-                            // Update UI Text
-                            const creditCountEl = document.getElementById('creditCount');
-                            if (creditCountEl) creditCountEl.innerText = window.userCredits;
-                            const oldCreditSpan = document.getElementById('userCreditsSpan'); // Fallback/Legacy
-                            if (oldCreditSpan) oldCreditSpan.innerText = window.userCredits;
-
-                            // Update UI Pill Class
-                            const pill = document.getElementById('creditPill');
-                            if (pill) {
-                                if (window.userCredits > 3) {
-                                    pill.classList.add('gold-mode');
-                                    pill.classList.remove('trial-mode');
-                                } else {
-                                    pill.classList.add('trial-mode');
-                                    pill.classList.remove('gold-mode');
-                                }
-                            }
-
-                        } else {
-                            console.error("Credit spend failed:", spendData.message);
-                            if (spendData.message === 'Insufficient credits') {
-                                const creditsModal = document.getElementById('creditsModalOverlay');
-                                if (creditsModal) creditsModal.classList.add('active');
-                            } else {
-                                alert("Failed to process credit. " + (spendData.message || "Unknown error"));
-                            }
-                            return; // Stop execution
-                        }
-                    } catch (spendErr) {
-                        console.error("Network error spending credit:", spendErr);
-                        return;
-                    }
+                    // 3.5 Credit Check & Spending (Bypassed for testing)
+                    /* Bypassed block removed */
 
                     // 4. Place Marker and Fetch Thermal Data
                     try {

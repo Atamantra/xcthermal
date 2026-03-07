@@ -80,18 +80,29 @@ export async function updateThermalDiagram(lat, lon, asl) {
     const imageUrl = `/api/thermal-image?lat=${lat}&lon=${lon}&asl=${asl}&t=${Date.now()}`; // Added timestamp to prevent caching issues
 
     if (thermalImage) {
+      console.log("Setting thermal image src to:", imageUrl);
       thermalImage.src = imageUrl;
       thermalImage.alt = "Thermal Forecast Meteogram";
+      thermalImage.style.display = "none";
       thermalImage.style.opacity = 0;
       thermalImage.style.transform = "scale(0.98)";
 
       thermalImage.onload = () => {
+        console.log("Thermal image LOADED. Natural height:", thermalImage.naturalHeight);
         if (thermalImage.naturalHeight > 0) {
           thermalImage.style.display = "block";
           thermalImage.style.opacity = 1;
           thermalImage.style.transform = "scale(1)";
           if (loader) loader.classList.add("hidden");
-          if (placeholder) placeholder.style.display = "none";
+          if (placeholder) {
+              console.log("Hiding placeholder");
+              placeholder.style.display = "none";
+          }
+
+          // ✨ Trigger Stats Button Glow
+          if (typeof window.setStatsButtonActive === 'function') {
+             window.setStatsButtonActive();
+          }
 
           // 📸 Click to expand modal
           thermalImage.onclick = () => {
@@ -100,22 +111,29 @@ export async function updateThermalDiagram(lat, lon, asl) {
             const modalImg = document.getElementById("modalImage");
             if (modal && modalImg) {
               modal.classList.remove("hidden");
-              // Explicitly force display and opacity for redundancy
+              modal.classList.add("active"); // Some CSS might use .active
               modal.style.display = 'flex';
               modal.style.opacity = '1';
               modalImg.src = thermalImage.src;
-              console.log("Modal opened. Z-Index should be MAX.");
-            } else {
-              console.error("Modal elements not found!");
             }
           };
 
-          // ❌ Close modal
+          // ❌ Close modal (ensure listeners are only attached once)
           if (modal && !modal.dataset.closeAttached) {
-            modalClose.addEventListener("click", () => modal.classList.add("hidden"));
-            modal.addEventListener("click", (e) => {
-              if (e.target === modal) modal.classList.add("hidden");
-            });
+            if (modalClose) {
+                modalClose.onclick = () => {
+                    modal.classList.add("hidden");
+                    modal.classList.remove("active");
+                    modal.style.display = 'none';
+                };
+            }
+            modal.onclick = (e) => {
+              if (e.target === modal) {
+                  modal.classList.add("hidden");
+                  modal.classList.remove("active");
+                  modal.style.display = 'none';
+              }
+            };
             modal.dataset.closeAttached = "true";
           }
         } else {
@@ -123,7 +141,10 @@ export async function updateThermalDiagram(lat, lon, asl) {
         }
       };
 
-      thermalImage.onerror = fallbackToPlaceholder;
+      thermalImage.onerror = (err) => {
+          console.error("Image load error:", err);
+          fallbackToPlaceholder();
+      };
     }
 
     thermalBox.classList.add("expanded");

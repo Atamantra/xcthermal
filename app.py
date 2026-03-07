@@ -204,14 +204,6 @@ class User(db.Model, UserMixin):
     daily_min_xc_km = db.Column(db.Integer, nullable=True)
     daily_ai_style = db.Column(db.String(20), default='xcperfect')
     daily_auto_route = db.Column(db.Boolean, default=False)
-    
-    # --- Map Persistence ---
-    last_lat = db.Column(db.Float, nullable=True)
-    last_lon = db.Column(db.Float, nullable=True)
-    last_zoom = db.Column(db.Float, nullable=True)
-    last_pitch = db.Column(db.Float, nullable=True)
-    last_bearing = db.Column(db.Float, nullable=True)
-    last_map_type = db.Column(db.String(10), default='2d') # '2d' or '3d'
 
     # --- XcPerfect Saved Location ---
     xc_perfect_lat = db.Column(db.Float, nullable=True)
@@ -502,6 +494,8 @@ def get_ai_interpretation(lat, lon, asl, req_language=None, req_style=None, req_
         # 5. Gemini API Call
         if not gemini_client:
             raise ValueError("Gemini client not initialized.")
+        
+        logging.info(f"Calling Gemini API with model: gemini-3.1-pro-preview for location {lat},{lon}")
         response = gemini_client.models.generate_content(
             model='gemini-3.1-pro-preview',
             contents=[prompt_content, slice_1, slice_2, slice_3, slice_4]
@@ -509,9 +503,10 @@ def get_ai_interpretation(lat, lon, asl, req_language=None, req_style=None, req_
         if response.text:
             return response.text
         else:
+            logging.error(f"Gemini API returned empty response for {lat},{lon}")
             raise ValueError("Gemini API returned an empty response.")
     except Exception as e:
-        logging.error(f"AI interpretation error for user ({lat},{lon}): {e}", exc_info=True)
+        logging.error(f"AI interpretation error for user ({lat},{lon}): {str(e)}", exc_info=True)
         raise
 
 
@@ -606,7 +601,7 @@ def map3d():
 @app.before_request
 def check_waiver():
     # List of allowed endpoints ensuring no redirect loop
-    allowed_endpoints = ['safety_waiver', 'logout', 'static', 'login', 'register', 'index', 'intro', 'map3d', 'login_google', 'google_auth'] # Added login/register/index/oauth to allowed list for guests to land
+    allowed_endpoints = ['safety_waiver', 'logout', 'static', 'login', 'register', 'index', 'intro', 'map3d', 'login_google', 'google_auth', 'spend_credit', 'create_checkout_session'] # Added checkout to allowed list
     
     # If endpoint is allowed, skip check
     # We now allow 'intro' and 'index' so the modal can be shown there
@@ -1458,25 +1453,26 @@ def interpret_route():
         # 3. Call AI (Text only for route, no meteogram image stitch yet)
         if not gemini_client:
             raise ValueError("Gemini client not initialized.")
+
+        logging.info(f"Calling Gemini API for Route with model: gemini-3.1-pro-preview. Points: {len(route)}")
         response = gemini_client.models.generate_content(
             model='gemini-3.1-pro-preview',
             contents=prompt
         )
         result_text = response.text if response.text else "AI returned no analysis."
-        
+
         # Save Report
         new_report = AIReport(user_id=current_user.id, lat=route[0]['lat'], lon=route[0]['lon'], content=f"**Route Analysis:**\n\n{result_text}")
         db.session.add(new_report)
         db.session.commit()
-        
+
         return jsonify({"interpretation": result_text, "remaining_credits": current_user.credits})
 
     except Exception as e:
-        logging.error(f"Route AI error: {e}", exc_info=True)
+        logging.error(f"Route AI error: {str(e)}", exc_info=True)
         current_user.credits += ROUTE_COST # Refund
         db.session.commit()
-        return jsonify({"error": "Route analysis failed."}), 500
-
+        return jsonify({"error": f"Route analysis failed: {str(e)}"}), 500
 
 
 
@@ -1553,10 +1549,9 @@ def remove_report(report_id):
 
 
 @app.route("/api/thermal-image")
-# @login_required
 def get_thermal_image():
-    if not current_user.is_authenticated:
-        return jsonify({'error': 'Unauthorized'}), 401
+    # if not current_user.is_authenticated:
+    #     return jsonify({'error': 'Unauthorized'}), 401
     lat = request.args.get("lat", type=float)
     lon = request.args.get("lon", type=float)
     asl = request.args.get("asl", type=int, default=0)
@@ -1586,10 +1581,9 @@ def get_thermal_image():
 
 
 @app.route("/api/altitude")
-# @login_required
 def altitude_api():
-    if not current_user.is_authenticated:
-        return jsonify({'error': 'Unauthorized'}), 401
+    # if not current_user.is_authenticated:
+    #     return jsonify({'error': 'Unauthorized'}), 401
     lat = request.args.get("lat", type=float)
     lon = request.args.get("lon", type=float)
     if lat is None or lon is None:
@@ -1815,18 +1809,23 @@ def api_delete_flight(public_id):
         db.session.rollback()
         return jsonify({'error': str(e), 'success': False}), 500
 
-@app.route("/spend-credit", methods=["POST"])
+@app.route("/api/spend-credit", methods=["POST"])
 @login_required
 def spend_credit():
-    if current_user.credits >= INTERPRETATION_COST:
-        current_user.credits -= INTERPRETATION_COST
-        db.session.commit()
-        return jsonify({
-            'success': True,
-            'credits': current_user.credits
-        })
-    else:
-        return jsonify({'success': False, 'message': 'Insufficient credits'}), 402
+    try:
+        if current_user.credits >= INTERPRETATION_COST:
+            current_user.credits -= INTERPRETATION_COST
+            db.session.commit()
+            return jsonify({
+                'success': True,
+                'credits': current_user.credits
+            })
+        else:
+            return jsonify({'success': False, 'message': 'Insufficient credits'}), 402
+    except Exception as e:
+        logging.error(f"Error in spend-credit: {e}", exc_info=True)
+        db.session.rollback()
+        return jsonify({'success': False, 'message': 'Server database error'}), 500
 
 @app.route("/api/sun-data", methods=["POST"])
 # @login_required
@@ -1914,7 +1913,7 @@ CREDIT_PRICES_TRY = {
     160: 500
 }
 
-@app.route('/create-checkout-session', methods=['POST'])
+@app.route('/api/create-checkout-session', methods=['POST'])
 def create_checkout_session():
     if not current_user.is_authenticated:
         return jsonify(error='Please log in to purchase credits.'), 401

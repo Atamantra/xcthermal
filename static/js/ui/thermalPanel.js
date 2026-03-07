@@ -55,15 +55,17 @@ export function setupThermalPanel(map) {
 
   // Observe changes in image src to show loader
   if (thermalImage) {
+    // Initial state
     thermalImage.style.display = "none";
     thermalImage.style.opacity = 0;
-    thermalImage.style.transform = "scale(0.98)";
 
     const observer = new MutationObserver(() => {
       if (thermalImage.src && thermalImage.style.display === "none") {
-        placeholder.innerText = "📡 Fetching data, please wait...";
-        placeholder.style.display = "block";
-        statsButton?.classList.remove("glow");
+          if (placeholder) {
+            placeholder.innerText = "📡 Fetching data, please wait...";
+            placeholder.style.display = "block";
+          }
+          statsButton?.classList.remove("glow");
       }
     });
 
@@ -71,31 +73,8 @@ export function setupThermalPanel(map) {
       attributes: true,
       attributeFilter: ["src"]
     });
-
-    thermalImage.onload = () => {
-      clearTimeout(loadTimeout);
-      thermalImage.style.display = "block";
-      thermalImage.style.opacity = 1;
-      thermalImage.style.transform = "scale(1)";
-      placeholder.style.display = "none";
-      setStatsButtonActive();
-    };
-
-    thermalImage.onerror = () => {
-      clearTimeout(loadTimeout);
-      placeholder.innerText = "❌ Failed to load image.";
-      placeholder.style.display = "block";
-    };
-  }
-
-  // Modal image viewer
-  if (thermalImage && modal && modalImg) {
-    thermalImage.addEventListener("click", () => {
-      if (thermalImage.src && thermalImage.style.display !== "none") {
-        modal.classList.remove("hidden");
-        modalImg.src = thermalImage.src;
-      }
-    });
+    
+    // Note: onload and onclick are now handled in thermalService.js to ensure consistency.
   }
 
   modalClose?.addEventListener("click", () => modal.classList.add("hidden"));

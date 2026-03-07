@@ -1427,38 +1427,38 @@
             <div class="credit-packages-grid"
                 style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px;">
 
-                <div class="credit-card" onclick="buyCredits(5)">
+                <div class="credit-card" onclick="buyCredits(event, 5)">
                     <div class="credit-amount">5</div>
                     <div class="credit-label">Credits</div>
                     <div class="credit-price" data-base-price="30">30 TL</div>
                 </div>
                 <!-- Package 10 -->
-                <div class="credit-card" onclick="buyCredits(10)">
+                <div class="credit-card" onclick="buyCredits(event, 10)">
                     <div class="badge" style="background:#ff9800;">Best Option</div>
                     <div class="credit-amount">10</div>
                     <div class="credit-label">Credits</div>
                     <div class="credit-price" data-base-price="50">50 TL</div>
                 </div>
                 <!-- Package 20 -->
-                <div class="credit-card" onclick="buyCredits(20)">
+                <div class="credit-card" onclick="buyCredits(event, 20)">
                     <div class="credit-amount">20</div>
                     <div class="credit-label">Credits</div>
                     <div class="credit-price" data-base-price="100">100 TL</div>
                 </div>
                 <!-- Package 40 -->
-                <div class="credit-card" onclick="buyCredits(40)">
+                <div class="credit-card" onclick="buyCredits(event, 40)">
                     <div class="credit-amount">40</div>
                     <div class="credit-label">Credits</div>
                     <div class="credit-price" data-base-price="200">200 TL</div>
                 </div>
                 <!-- Package 80 -->
-                <div class="credit-card" onclick="buyCredits(80)">
+                <div class="credit-card" onclick="buyCredits(event, 80)">
                     <div class="credit-amount">80</div>
                     <div class="credit-label">Credits</div>
                     <div class="credit-price" data-base-price="400">400 TL</div>
                 </div>
                 <!-- Package 160 -->
-                <div class="credit-card best-value" onclick="buyCredits(160)">
+                <div class="credit-card best-value" onclick="buyCredits(event, 160)">
                     <div class="badge">Best Price!</div>
                     <div class="credit-amount">160</div>
                     <div class="credit-label">Credits</div>
@@ -1570,13 +1570,15 @@
         // Run on load
         detectUserCurrency();
 
-        async function buyCredits(amount) {
-            const btn = event.currentTarget;
-            btn.style.opacity = '0.7';
-            btn.style.cursor = 'wait';
+        async function buyCredits(ev, amount) {
+            const btn = ev ? ev.currentTarget : null;
+            if (btn) {
+                btn.style.opacity = '0.7';
+                btn.style.cursor = 'wait';
+            }
 
             try {
-                const response = await fetch('/create-checkout-session', {
+                const response = await fetch('/api/create-checkout-session', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1588,8 +1590,10 @@
                 const session = await response.json();
                 if (session.error) {
                     alert('Error: ' + session.error);
-                    btn.style.opacity = '1';
-                    btn.style.cursor = 'pointer';
+                    if (btn) {
+                        btn.style.opacity = '1';
+                        btn.style.cursor = 'pointer';
+                    }
                     return;
                 }
 
@@ -1597,19 +1601,21 @@
                 const result = await stripe.redirectToCheckout({ sessionId: session.id });
                 if (result.error) {
                     alert(result.error.message);
+                    if (btn) {
+                        btn.style.opacity = '1';
+                        btn.style.cursor = 'pointer';
+                    }
                 }
             } catch (err) {
                 console.error("Payment Error:", err);
                 alert("Payment functionality unavailable.");
-                btn.style.opacity = '1';
-                btn.style.cursor = 'pointer';
+                if (btn) {
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                }
             }
         }
-    </script><iframe name="__privateStripeController9491" frameborder="0" allowtransparency="true" scrolling="no"
-        role="presentation" allow="payment *"
-        src="https://js.stripe.com/v3/controller-with-preconnect-be8e11a47b21d9dba6efe2921cb1e8cb.html#__shared_params__[version]=v3&amp;__shared_params__[light_experiment_assignments]=%7B%22token%22%3A%22b09b842f-7f9a-4e36-8c46-ac932e3bf044%22%2C%22assignments%22%3A%7B%22elements_generic_skeleton_loader_v4%22%3A%22control%22%7D%7D&amp;apiKey=pk_live_51PtNwOHx6MpLr9dmzK2Q3SSM3Ip2LXXLeNMwU5xUIacGqMbudc5QFven09RuoIh6apLTvazKZfwxMW8ColmwytE700L43AtfFk&amp;stripeJsId=b09b842f-7f9a-4e36-8c46-ac932e3bf044&amp;stripeObjId=sobj-32742b07-e8b3-4b8e-83a4-4941d18fe600&amp;firstStripeInstanceCreatedLatency=15&amp;controllerCount=1&amp;isCheckout=false&amp;stripeJsLoadTime=1771355615511&amp;manualBrowserDeprecationRollout=false&amp;mids[guid]=NA&amp;mids[muid]=NA&amp;mids[sid]=NA&amp;referrer=http%3A%2F%2F127.0.0.1%3A5001%2Fmap&amp;controllerId=__privateStripeController9491"
-        aria-hidden="true" tabindex="-1"
-        style="border: medium !important; margin: 0px !important; padding: 0px !important; width: 1px !important; min-width: 100% !important; overflow: hidden !important; display: block !important; visibility: hidden !important; position: fixed !important; height: 1px !important; pointer-events: none !important;"></iframe>
+    </script>
 
     <style>
         .credit-card {
@@ -2226,7 +2232,7 @@
         <script>
             window.APP_VERSION_TIMESTAMP = "{{ now.timestamp() }}";
         </script>
-        <script type="module" src="/static/js/main.js?v={{ now.timestamp() }}"></script>
+        <script type="module" src="/static/js/main.js?v=mar7-1828"></script>
 
 
     </div>
